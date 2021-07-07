@@ -1,0 +1,9 @@
+{
+  "projectType": [
+    "react"
+  ],
+  "srcPath": "./",
+  "localePath": "./locales",
+  "wrapperFuncName": "t",
+  "excludePath": "node_modules"
+}
