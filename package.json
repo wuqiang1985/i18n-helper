@@ -13,7 +13,7 @@
   "keywords": [
     "i18n"
   ],
-  "author": "qiangwu",
+  "author": "wuqiang",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/wuqiang1985/i18n-helper/issues"
@@ -43,6 +43,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-prettier": "^3.4.0",
+    "husky": "^7.0.1",
     "lint-staged": "^11.0.0",
     "tslib": "^2.3.0",
     "typescript": "^4.3.4"
@@ -55,7 +56,6 @@
     "chalk": "^4.1.1",
     "commander": "^8.0.0",
     "glob": "^7.1.7",
-    "husky": "^7.0.1",
     "inquirer": "^8.1.1",
     "lodash": "^4.17.21",
     "log-symbols": "^5.0.0",
