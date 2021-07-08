@@ -26,4 +26,7 @@ node_modules/
 # Output directory
 dist
 
+# Generated configuration file
+i18n.config.json
+
 
