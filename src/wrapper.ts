@@ -36,11 +36,43 @@ const wrapperFile = (
 
 const extractWording = (wordInfoArray: any[]) => {
   const dest = `${__dirname}/dist/message.json`;
-  const myList = _.flattenDeep(wordInfoArray);
+  const wordList = _.flattenDeep(wordInfoArray);
+  // groupedWordList 结构，按key聚合
+  // {
+  //   "武强": [
+  //     {
+  //       "key": "武强",
+  //       "filename": "/Users/wuqiang/dev/study/mine/i18n/i18n-helper/src/test/index.js",
+  //       "line": 9
+  //     }
+  //   ],
+  // }
+  const groupedWordList = _.chain(wordList).groupBy('key').value();
+  const wordingKeys = Object.keys(groupedWordList);
+  const isTransFilesExits = false;
+  const obj: any = {};
 
-  const myList1 = _.uniqWith(myList, _.isEqual);
+  if (isTransFilesExits) {
+    wordingKeys.map((key) => {
+      obj[key] = '';
+    });
 
-  fs.writeFileSync(dest, formatJSON(myList1), 'utf8');
+    fs.writeFileSync(dest, formatJSON(obj), 'utf8');
+  } else {
+    import('./dist/message.json').then((file) => {
+      const existWording = Object.keys(file);
+      existWording.pop();
+      const newWroding = _.difference(wordingKeys, existWording);
+      console.log(newWroding);
+      if (newWroding.length > 0) {
+        wordingKeys.map((key) => {
+          obj[key] = '';
+        });
+        fs.writeFileSync(dest, formatJSON(obj), 'utf8');
+        console.log('done');
+      }
+    });
+  }
 };
 
 const wrap = (files: string[]): void => {

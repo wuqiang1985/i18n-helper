@@ -6,7 +6,7 @@ export interface iTransInfo {
 }
 
 export interface iWordInfo {
-  key?: string;
-  filename?: string;
-  line?: number;
+  key: string;
+  filename: string;
+  line: number;
 }

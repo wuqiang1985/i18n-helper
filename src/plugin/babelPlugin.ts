@@ -33,11 +33,17 @@ const i18nPlugin = (transInfo: iTransInfo): any => {
       const line = path.node.loc?.start?.line ?? 0;
 
       const wordInfo: iWordInfo = {
-        [value]: '',
-        // filename,
-        // line,
+        key: value,
+        filename,
+        line,
       };
 
+      // wordInfo 结构
+      // [
+      //   { key: '武强', fileName: 'index.js', line: '91' },
+      //   { key: '你好呀', fileName: 'index.js', line: '191' },
+      //   { key: '武强', fileName: 'index.ts', line: '291' },
+      // ];
       list.push(wordInfo);
     };
 
