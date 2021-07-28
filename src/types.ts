@@ -10,3 +10,16 @@ export interface iWordInfo {
   filename: string;
   line: number;
 }
+
+export interface iI18nConf {
+  projectType: string;
+  srcPath: string;
+  fileExt: string;
+  wrapperFuncName: string;
+  jsx2Trans: boolean;
+  importStr: string;
+  exclude: string;
+  localeDir: string;
+  transFileName: string;
+  transFileExt: string;
+}

@@ -9,7 +9,7 @@ import i18nPlugin from './plugin/babelPlugin';
 import { getMatchedFiles } from './util/fileHelper';
 import Logger from './util/logger';
 import { formatJSON } from './util/helper';
-import { iTransInfo } from './types';
+import { iTransInfo, iI18nConf } from './types';
 
 const distPath = `${__dirname}/dist/`;
 
@@ -77,7 +77,7 @@ const extractWording = (wordInfoArray: any[]) => {
   }
 };
 
-const wrap = (files: string[]): void => {
+const wrap = (files: string[], i18nConf: iI18nConf): void => {
   files.forEach((filename) => {
     const transInfo: iTransInfo = {
       needT: false,
@@ -85,7 +85,7 @@ const wrap = (files: string[]): void => {
       needImport: true,
       wordInfoArray: [],
     };
-    const plugin = i18nPlugin(transInfo);
+    const plugin = i18nPlugin(transInfo, i18nConf);
     const transResult = transformFileSync(filename, {
       plugins: [['@babel/plugin-syntax-typescript', { isTSX: true }], plugin],
     });
@@ -107,7 +107,12 @@ const wrap = (files: string[]): void => {
   Logger.success('文件包裹已完成！');
 };
 
-const run = (filePath: string): void => {
+/**
+ * 包裹 & 提取词条
+ * @param filePath 需要包裹词条路径
+ * @param i18nConfig i18n配置
+ */
+const run = (filePath: string, i18nConf: iI18nConf): void => {
   Logger.info('开始包裹词条');
   const start = process.hrtime.bigint();
   fs.stat(filePath, (err, stat): void => {
@@ -117,9 +122,9 @@ const run = (filePath: string): void => {
       return;
     }
 
-    const files = getMatchedFiles(filePath, stat);
+    const files = getMatchedFiles(filePath, stat, i18nConf);
     if (files.length > 0) {
-      wrap(files);
+      wrap(files, i18nConf);
       const end = process.hrtime.bigint();
 
       Logger.info(`耗时：${(end - start) / 1000000n}ms`);

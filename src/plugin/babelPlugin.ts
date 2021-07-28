@@ -2,12 +2,12 @@ import type * as tt from '@babel/types';
 import type { NodePath } from '@babel/traverse';
 
 import { isChinese } from '../util/helper';
-import { iTransInfo, iWordInfo } from '../types';
+import { iTransInfo, iI18nConf, iWordInfo } from '../types';
 
-const JSX_WRAPPER = 'trans';
-const T_WRAPPER = 't';
+const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
+  const JSX_WRAPPER = 'trans';
+  const T_WRAPPER = i18nConf.wrapperFuncName;
 
-const i18nPlugin = (transInfo: iTransInfo): any => {
   const plugin = ({ types: t }: { types: any }) => {
     // const wordInfoArray = [];
     const combine = (value: string) =>
@@ -19,7 +19,7 @@ const i18nPlugin = (transInfo: iTransInfo): any => {
       });
     const replaceLineBreak = function (value: any) {
       if (typeof value !== 'string') return value;
-      return value.replace(/\n/g, ' ');
+      return value.replace(/\n/g, ' ').trim();
     };
 
     const collectWordingInfo = (
@@ -49,9 +49,6 @@ const i18nPlugin = (transInfo: iTransInfo): any => {
 
     return {
       visitor: {
-        /**
-         * 包裹t
-         * */
         StringLiteral(path: NodePath<tt.StringLiteral>) {
           const { value } = path.node;
           if (isChinese(value)) {
@@ -62,6 +59,7 @@ const i18nPlugin = (transInfo: iTransInfo): any => {
             if (path.parentPath?.node.type === 'JSXAttribute') {
               newNode = t.JSXExpressionContainer(newNode);
             }
+            path.replaceWith(newNode);
 
             transInfo.needT = true;
             collectWordingInfo(
@@ -70,7 +68,6 @@ const i18nPlugin = (transInfo: iTransInfo): any => {
               this,
               transInfo.wordInfoArray,
             );
-            path.replaceWith(newNode);
           }
         },
 
@@ -92,35 +89,35 @@ const i18nPlugin = (transInfo: iTransInfo): any => {
             return aStart - bStart;
           });
 
-          let isReplace = false;
           let v = '';
           const variable: any = {};
 
+          // 组装模板字符串左侧部分
           tempArr.forEach((templateLiteralItem) => {
-            if (templateLiteralItem.type === 'TemplateElement') {
-              v += `${replaceLineBreak(templateLiteralItem.value.cooked)}`;
-              if (isChinese(templateLiteralItem.value.raw)) {
-                isReplace = true;
-              }
-            } else if (templateLiteralItem.type === 'Identifier') {
-              variable[templateLiteralItem.name.toString()] = t.name;
-              v += `{{${templateLiteralItem.name}}}`;
-            } else if (templateLiteralItem.type === 'CallExpression') {
-              // TODO:
-              isReplace = false;
-            } else {
-              // TODO:
-              isReplace = false;
+            switch (templateLiteralItem.type) {
+              case 'TemplateElement':
+                v += `${replaceLineBreak(templateLiteralItem.value.cooked)}`;
+                break;
+              case 'Identifier':
+                // `我有{xx}`
+                variable[templateLiteralItem.name] = t.name;
+                v += `{{${templateLiteralItem.name}}}`;
+                break;
+              case 'CallExpression':
+                // TODO:
+                // `我有{obj.xx()}`
+                // `我有{xx()}`
+                break;
+              case 'MemberExpression':
+                // TODO:
+                // `我有{obj.xx}`
+                break;
+              default:
+                break;
             }
           });
-          // console.log(`sss:${v}`);
-          if (!isReplace) {
-            path.skip();
-          }
-          if (v.trim() === '') {
-            path.skip();
-          }
 
+          // 组装模板字符串右侧对象
           const objArray: any = [];
           Object.keys(variable).map((key) => {
             const obj = t.objectProperty(t.Identifier(key), t.Identifier(key));
@@ -129,49 +126,57 @@ const i18nPlugin = (transInfo: iTransInfo): any => {
             objArray.push(obj);
           });
 
+          const newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
+            combine(v),
+            t.ObjectExpression(objArray),
+          ]);
+          path.replaceWith(newNode);
+
+          transInfo.needT = true;
           collectWordingInfo(
             v,
             path as NodePath,
             this,
             transInfo.wordInfoArray,
           );
-
-          const newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
-            combine(v),
-            t.ObjectExpression(objArray),
-          ]);
-
-          transInfo.needT = true;
-          path.replaceWith(newNode);
-
-          path.skip();
         },
 
         JSXText(path: NodePath<tt.JSXText>) {
           const { node } = path;
+          const { value } = node;
 
+          // jsx内部文字包含中文且不被<trans></trans>包裹
           if (
-            isChinese(node.value) &&
+            isChinese(value) &&
             (
               (path.parentPath.node as tt.JSXElement).openingElement
                 .name as tt.JSXIdentifier
             ).name !== JSX_WRAPPER
           ) {
+            let newNode;
+            if (i18nConf.jsx2Trans) {
+              // t.jsxElement(openingElement, closingElement, children, selfClosing);
+              newNode = t.jsxElement(
+                t.jsxOpeningElement(t.jsxIdentifier(JSX_WRAPPER), []),
+                t.jsxClosingElement(t.jsxIdentifier(JSX_WRAPPER)),
+                [t.jsxText(value)],
+                true,
+              );
+            } else {
+              newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
+                combine(replaceLineBreak(value)),
+              ]);
+              newNode = t.JSXExpressionContainer(newNode);
+            }
+            path.replaceWith(newNode);
+
+            transInfo.needTrans = true;
             collectWordingInfo(
               replaceLineBreak(node.value.trim()),
               path as NodePath,
               this,
               transInfo.wordInfoArray,
             );
-            // t.jsxElement(openingElement, closingElement, children, selfClosing);
-            const newNode = t.jsxElement(
-              t.jsxOpeningElement(t.jsxIdentifier(JSX_WRAPPER), []),
-              t.jsxClosingElement(t.jsxIdentifier(JSX_WRAPPER)),
-              [t.jsxText(node.value)],
-              true,
-            );
-            transInfo.needTrans = true;
-            path.replaceWith(newNode);
           }
         },
 

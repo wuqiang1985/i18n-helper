@@ -5,15 +5,16 @@ import inquirer from 'inquirer';
 import glob from 'glob';
 
 import Logger from './logger';
-import { DEFAULT_I18N_FILE_NAME, FILE_TYPE } from '../config/const';
+import { I18N_CONFIGURATION_FILE_NAME } from '../config/const';
 import questions from '../config/questionList';
 import { formatJSON } from './helper';
+import { iI18nConf } from '../types';
 
 const i18nDefaultConfiguration = require('../config/i18n.default.config');
 
 const doGenerateConfiguration = (configuration: any) => {
   const configurationStr = formatJSON(configuration);
-  fs.writeFileSync(DEFAULT_I18N_FILE_NAME, configurationStr, 'utf8');
+  fs.writeFileSync(I18N_CONFIGURATION_FILE_NAME, configurationStr, 'utf8');
   Logger.success('i18n.config.json 生成成功');
 };
 
@@ -33,7 +34,11 @@ const generateConfiguration = (useDefaultConfig: boolean): void => {
 /**
  * 获取指定路径下文件
  */
-const getMatchedFiles = (filePath: string, stat: fs.Stats): string[] => {
+const getMatchedFiles = (
+  filePath: string,
+  stat: fs.Stats,
+  i18nConf: iI18nConf,
+): string[] => {
   let files = [];
 
   if (stat.isFile()) {
@@ -41,9 +46,14 @@ const getMatchedFiles = (filePath: string, stat: fs.Stats): string[] => {
   }
 
   if (stat.isDirectory()) {
-    const pattern = `${filePath}/**/*.{${FILE_TYPE}}`;
+    const pattern = `${filePath}/**/*.{${i18nConf.fileExt}}`;
+    const ignorePath = i18nConf.exclude.split(',').map((item) => {
+      return `**/${item}/**`;
+    });
+
     const option = {
-      ignore: ['**/node_modules/**', '**/.git/**', '**/dist/**'],
+      // ignore: ['**/node_modules/**', '**/.git/**', '**/dist/**'],
+      ignore: ignorePath,
     };
     files = glob.sync(pattern, option);
   }
