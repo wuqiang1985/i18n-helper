@@ -75,8 +75,9 @@ const i18nPlugin = (transInfo: iTransInfo): any => {
         },
 
         TemplateLiteral(path: NodePath<tt.TemplateLiteral>) {
-          if (!path.node.quasis.every((word) => !isChinese(word.value.raw))) {
-            path.skip();
+          // 全部不包含中文词条则不处理
+          if (path.node.quasis.every((word) => !isChinese(word.value.raw))) {
+            return;
           }
 
           type CustomArray = (tt.TemplateElement | tt.Expression | tt.TSType)[];
@@ -90,7 +91,6 @@ const i18nPlugin = (transInfo: iTransInfo): any => {
             const bStart = b.start ?? 0;
             return aStart - bStart;
           });
-          // console.dir(`sss:${tempArr}`);
 
           let isReplace = false;
           let v = '';

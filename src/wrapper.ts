@@ -63,13 +63,15 @@ const extractWording = (wordInfoArray: any[]) => {
       const existWording = Object.keys(file);
       existWording.pop();
       const newWroding = _.difference(wordingKeys, existWording);
-      console.log(newWroding);
+      // console.log(newWroding);
       if (newWroding.length > 0) {
         wordingKeys.map((key) => {
           obj[key] = '';
         });
         fs.writeFileSync(dest, formatJSON(obj), 'utf8');
-        console.log('done');
+        Logger.success('词条提取成功！');
+      } else {
+        Logger.success('本次无词条变动！');
       }
     });
   }
@@ -100,7 +102,6 @@ const wrap = (files: string[]): void => {
 
   if (wordingList.length > 0) {
     extractWording(wordingList);
-    Logger.success('词条提取成功！');
   }
 
   Logger.success('文件包裹已完成！');
@@ -118,8 +119,6 @@ const run = (filePath: string): void => {
 
     const files = getMatchedFiles(filePath, stat);
     if (files.length > 0) {
-      // console.log(files.length);
-      // console.log(files);
       wrap(files);
       const end = process.hrtime.bigint();
 
