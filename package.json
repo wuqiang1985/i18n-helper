@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky install",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "build": "tsc",
+    "copy": "cp ./README.md ./dist ",
+    "prepublish": "rimraf ./dist && npm run build && npm run copy"
   },
   "repository": {
     "type": "git",
@@ -21,7 +24,7 @@
     "url": "https://github.com/wuqiang1985/i18n-helper/issues"
   },
   "bin": {
-    "i18n": "./src/cli.ts"
+    "i18n-helper": "./src/cli.js"
   },
   "homepage": "https://github.com/wuqiang1985/i18n-helper#readme",
   "devDependencies": {
