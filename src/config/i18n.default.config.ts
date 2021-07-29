@@ -13,10 +13,12 @@ module.exports = {
   importStr: `import { Trans, useTranslation, Translation, withTranslation } from 'react-i18next';\n`,
   // 排除目录，此目录下的不会不会执行包裹和提取词条操作
   exclude: 'node_modules,dist,git',
-  // 提取词条目录
+  // 翻译词条目录
   localeDir: './locales',
-  // 提取词条文件名
+  // 翻译语种
+  languages: 'zh_CN,en',
+  // 翻译词条文件名
   transFileName: 'translation',
-  // 提取词条文件格式: json, po
+  // 翻译词条文件格式: json, po
   transFileExt: 'json',
 };

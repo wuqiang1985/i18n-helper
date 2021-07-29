@@ -103,12 +103,13 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
               case 'Identifier': {
                 // `我有{xx}`
                 const identifierName = templateLiteralItem.name;
+
                 variable.type = 'Identifier';
                 variable.key = identifierName;
+                variable.value = templateLiteralItem;
                 variableList.push(variable);
 
                 v += `{{${identifierName}}}`;
-
                 break;
               }
               case 'CallExpression': {
@@ -134,7 +135,6 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 variableList.push(variable);
 
                 v += `{{${callExpressionName}}}`;
-
                 break;
               }
               case 'MemberExpression': {
@@ -149,7 +149,6 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 variableList.push(variable);
 
                 v += `{{${memberExpressionName}}}`;
-
                 break;
               }
               default:
@@ -165,7 +164,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
               case 'Identifier': {
                 obj = t.objectProperty(
                   t.Identifier(item.key),
-                  t.Identifier(item.key),
+                  item.value as tt.Identifier,
                 );
                 obj.shorthand = true;
                 break;
