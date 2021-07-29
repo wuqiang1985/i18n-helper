@@ -90,28 +90,68 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
           });
 
           let v = '';
-          const variable: any = {};
+          const variableList: any = [];
 
           // 组装模板字符串左侧部分
           tempArr.forEach((templateLiteralItem) => {
+            const variable: any = {};
             switch (templateLiteralItem.type) {
               case 'TemplateElement':
+                // 文字
                 v += `${replaceLineBreak(templateLiteralItem.value.cooked)}`;
                 break;
-              case 'Identifier':
+              case 'Identifier': {
                 // `我有{xx}`
-                variable[templateLiteralItem.name] = t.name;
-                v += `{{${templateLiteralItem.name}}}`;
+                const identifierName = templateLiteralItem.name;
+                variable.type = 'Identifier';
+                variable.key = identifierName;
+                variableList.push(variable);
+
+                v += `{{${identifierName}}}`;
+
                 break;
-              case 'CallExpression':
-                // TODO:
+              }
+              case 'CallExpression': {
                 // `我有{obj.xx()}`
                 // `我有{xx()}`
+
+                const { type } = templateLiteralItem.callee;
+                let callExpressionName = '';
+                if (type === 'Identifier') {
+                  callExpressionName = (
+                    templateLiteralItem.callee as tt.Identifier
+                  ).name;
+                } else if (type === 'MemberExpression') {
+                  callExpressionName = (
+                    (templateLiteralItem.callee as tt.MemberExpression)
+                      .property as tt.Identifier
+                  ).name;
+                }
+
+                variable.type = 'CallExpression';
+                variable.key = callExpressionName;
+                variable.value = templateLiteralItem;
+                variableList.push(variable);
+
+                v += `{{${callExpressionName}}}`;
+
                 break;
-              case 'MemberExpression':
-                // TODO:
+              }
+              case 'MemberExpression': {
                 // `我有{obj.xx}`
+                const memberExpressionName = (
+                  templateLiteralItem.property as tt.Identifier
+                ).name;
+
+                variable.type = 'MemberExpression';
+                variable.key = memberExpressionName;
+                variable.value = templateLiteralItem;
+                variableList.push(variable);
+
+                v += `{{${memberExpressionName}}}`;
+
                 break;
+              }
               default:
                 break;
             }
@@ -119,17 +159,45 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
 
           // 组装模板字符串右侧对象
           const objArray: any = [];
-          Object.keys(variable).map((key) => {
-            const obj = t.objectProperty(t.Identifier(key), t.Identifier(key));
-            obj.shorthand = true;
-
+          variableList.map((item: any) => {
+            let obj;
+            switch (item.type) {
+              case 'Identifier': {
+                obj = t.objectProperty(
+                  t.Identifier(item.key),
+                  t.Identifier(item.key),
+                );
+                obj.shorthand = true;
+                break;
+              }
+              case 'CallExpression':
+                obj = t.objectProperty(
+                  t.Identifier(item.key),
+                  item.value as tt.CallExpression,
+                );
+                break;
+              case 'MemberExpression':
+                obj = t.objectProperty(
+                  t.Identifier(item.key),
+                  item.value as tt.MemberExpression,
+                );
+                break;
+              default:
+                break;
+            }
             objArray.push(obj);
           });
 
-          const newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
-            combine(v),
-            t.ObjectExpression(objArray),
-          ]);
+          let newNode;
+          if (objArray.length > 0) {
+            newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
+              combine(v),
+              t.ObjectExpression(objArray),
+            ]);
+          } else {
+            // 处理文字全用``包裹的，并没有${}的内容，如 const word = `你好`
+            newNode = t.CallExpression(t.Identifier(T_WRAPPER), [combine(v)]);
+          }
           path.replaceWith(newNode);
 
           transInfo.needT = true;
