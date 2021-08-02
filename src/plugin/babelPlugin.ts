@@ -222,7 +222,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
           ) {
             let newNode;
             if (i18nConf.jsx2Trans) {
-              // t.jsxElement(openingElement, closingElement, children, selfClosing);
+              // 用trans包裹
               newNode = t.jsxElement(
                 t.jsxOpeningElement(t.jsxIdentifier(JSX_WRAPPER), []),
                 t.jsxClosingElement(t.jsxIdentifier(JSX_WRAPPER)),
@@ -230,6 +230,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 true,
               );
             } else {
+              // 用 t 包裹
               newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
                 combine(replaceLineBreak(value)),
               ]);
@@ -248,13 +249,13 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
         },
 
         CallExpression(path: NodePath<tt.CallExpression>) {
-          // 跳过t()
-          if (path.node.callee.type === 'Identifier') {
-            if (path.node.callee.name === T_WRAPPER) {
-              path.skip();
-            }
+          // 跳过 t()
+          const { type, name } = path.node.callee as tt.Identifier;
+          if (type === 'Identifier' && name === T_WRAPPER) {
+            path.skip();
           }
         },
+
         ImportDeclaration(path: NodePath<tt.ImportDeclaration>) {
           const { node } = path;
           if (node.source.value === 'react-i18next') {

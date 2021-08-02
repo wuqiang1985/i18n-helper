@@ -20,6 +20,7 @@ export interface iI18nConf {
   importStr: string;
   exclude: string;
   localeDir: string;
+  languages: string;
   transFileName: string;
   transFileExt: string;
 }

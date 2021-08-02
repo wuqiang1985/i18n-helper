@@ -4,6 +4,7 @@ import path from 'path';
 import { transformFileSync } from '@babel/core';
 import prettier from 'prettier';
 import _ from 'lodash';
+import fse from 'fs-extra';
 
 import i18nPlugin from './plugin/babelPlugin';
 import { getMatchedFiles } from './util/fileHelper';
@@ -11,31 +12,40 @@ import Logger from './util/logger';
 import { formatJSON } from './util/helper';
 import { iTransInfo, iI18nConf } from './types';
 
-const distPath = `${__dirname}/dist/`;
+const originalScanWordInfoList: any[] = [];
 
-const IMPORT_STR = `import { Trans, useTranslation, Translation, withTranslation } from 'react-i18next';\n`;
-const wordingList: any[] = [];
-
-const wrapperFile = (
+/**
+ * 生成包裹词条的文件
+ * @param transInfo 扫码后得到的翻译信息
+ * @param code 包裹后生成的代码
+ * @param filename 生成的文件名
+ * @param i18nConfig i18n配置
+ */
+const generateFile = (
   transInfo: iTransInfo,
   code: string,
   filename: string,
-  // wordingList: [],
+  i18nConf: iI18nConf,
 ) => {
   if (transInfo.needImport) {
-    code = `${IMPORT_STR}${code}`;
+    code = `${i18nConf.importStr}${code}`;
   }
   code = prettier.format(code, {
     parser: 'babel',
     singleQuote: true,
   });
 
-  const distFilename = `${distPath}${path.basename(filename)}`;
-  fs.writeFileSync(distFilename, code, 'utf8');
+  // const distFilename = `${distPath}${path.basename(filename)}`;
+  fs.writeFileSync(filename, code, 'utf8');
 };
 
-const extractWording = (wordInfoArray: any[]) => {
-  const dest = `${__dirname}/dist/message.json`;
+/**
+ * 提取词条到翻译文件
+ * @param wordInfoArray 扫描后得到的词条信息
+ * @param i18nConfig i18n配置
+ */
+const extractWording = async (wordInfoArray: any[], i18nConf: iI18nConf) => {
+  const { localeDir, transFileName, transFileExt, languages } = i18nConf;
   const wordList = _.flattenDeep(wordInfoArray);
   // groupedWordList 结构，按key聚合
   // {
@@ -48,35 +58,52 @@ const extractWording = (wordInfoArray: any[]) => {
   //   ],
   // }
   const groupedWordList = _.chain(wordList).groupBy('key').value();
-  const wordingKeys = Object.keys(groupedWordList);
-  const isTransFilesExits = false;
+  // 本次词条扫描后得到的所有中文词条
+  const scannedWordings = Object.keys(groupedWordList);
   const obj: any = {};
 
-  if (isTransFilesExits) {
-    wordingKeys.map((key) => {
-      obj[key] = '';
-    });
+  // 遍历翻译文件
+  languages.split(',').map((lang) => {
+    const transFile = `${path.resolve(
+      localeDir,
+      lang,
+      transFileName,
+    )}.${transFileExt}`;
+    const isTransFilesExits = fs.existsSync(transFile);
 
-    fs.writeFileSync(dest, formatJSON(obj), 'utf8');
-  } else {
-    import('./dist/message.json').then((file) => {
-      const existWording = Object.keys(file);
-      existWording.pop();
-      const newWroding = _.difference(wordingKeys, existWording);
-      // console.log(newWroding);
-      if (newWroding.length > 0) {
-        wordingKeys.map((key) => {
+    if (!isTransFilesExits) {
+      // 翻译文件不存在，新建翻译文件，写入【新增】 key: ''
+      scannedWordings.map((key) => {
+        obj[key] = '';
+      });
+
+      fse.outputFileSync(transFile, formatJSON(obj));
+    } else {
+      // 翻译文件存在，修改翻译文件，写入 【修改】 & 【新增 】key: ‘’
+      const transObj = fse.readJSONSync(transFile);
+      const existWording = Object.keys(transObj);
+      // 新增和修改的词条
+      const AUWordings = _.difference(scannedWordings, existWording);
+      if (AUWordings.length > 0) {
+        AUWordings.map((key) => {
           obj[key] = '';
         });
-        fs.writeFileSync(dest, formatJSON(obj), 'utf8');
+        const newObj = { ...transObj, ...obj };
+
+        fs.writeFileSync(transFile, formatJSON(newObj), 'utf8');
         Logger.success('词条提取成功！');
       } else {
         Logger.success('本次无词条变动！');
       }
-    });
-  }
+    }
+  });
 };
 
+/**
+ * 包裹词条
+ * @param files 需要执行包裹词条的文件
+ * @param i18nConf 18n配置
+ */
 const wrap = (files: string[], i18nConf: iI18nConf): void => {
   files.forEach((filename) => {
     const transInfo: iTransInfo = {
@@ -94,14 +121,16 @@ const wrap = (files: string[], i18nConf: iI18nConf): void => {
       const code = transResult.code as string;
       const needTranslate = transInfo.needT || transInfo.needTrans;
       if (needTranslate) {
-        wrapperFile(transInfo, code, filename);
-        wordingList.push(transInfo.wordInfoArray);
+        generateFile(transInfo, code, filename, i18nConf);
+        originalScanWordInfoList.push(transInfo.wordInfoArray);
       }
     }
   });
 
-  if (wordingList.length > 0) {
-    extractWording(wordingList);
+  if (originalScanWordInfoList.length > 0) {
+    extractWording(originalScanWordInfoList, i18nConf);
+  } else {
+    console.log('...');
   }
 
   Logger.success('文件包裹已完成！');

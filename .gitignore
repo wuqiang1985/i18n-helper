@@ -26,7 +26,10 @@ node_modules/
 # Output directory
 dist
 
-# Generated configuration file
+# Generated configuration file by i18n-help cli
 i18n.config.json
+
+# Generated translation file by i18n-help cli
+translation.json
 
 
