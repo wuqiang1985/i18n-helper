@@ -249,9 +249,20 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
         },
 
         CallExpression(path: NodePath<tt.CallExpression>) {
-          // 跳过 t()
+          // 跳过 t 函数，但包裹的词条要提取出来，否则这里的词条修改后无法识别
           const { type, name } = path.node.callee as tt.Identifier;
           if (type === 'Identifier' && name === T_WRAPPER) {
+            path.node.arguments
+              .filter((arg) => arg.type === 'StringLiteral')
+              .map((sl) => {
+                const node = sl as tt.StringLiteral;
+                collectWordingInfo(
+                  node.value.trim(),
+                  path as NodePath,
+                  this,
+                  transInfo.wordInfoArray,
+                );
+              });
             path.skip();
           }
         },

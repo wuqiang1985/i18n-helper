@@ -93,7 +93,7 @@ const extractWording = async (wordInfoArray: any[], i18nConf: iI18nConf) => {
         fs.writeFileSync(transFile, formatJSON(newObj), 'utf8');
         Logger.success('词条提取成功！');
       } else {
-        Logger.success('本次无词条变动！');
+        Logger.warning('本次无词条变动！');
       }
     }
   });
@@ -120,9 +120,16 @@ const wrap = (files: string[], i18nConf: iI18nConf): void => {
     if (transResult) {
       const code = transResult.code as string;
       const needTranslate = transInfo.needT || transInfo.needTrans;
+
+      // wordInfoArray 包含2个部分
+      // 1. 未被包裹的中文词条
+      // 2. 被 t 包裹后的 中文词条 (不包含这部分的话在包裹后无法提取词条)
+      if (transInfo.wordInfoArray.length > 0) {
+        originalScanWordInfoList.push(transInfo.wordInfoArray);
+      }
+
       if (needTranslate) {
         generateFile(transInfo, code, filename, i18nConf);
-        originalScanWordInfoList.push(transInfo.wordInfoArray);
       }
     }
   });
