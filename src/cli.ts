@@ -1,14 +1,11 @@
 #!/usr/bin/env node
 import path from 'path';
-import fs from 'fs';
 
 import { program } from 'commander';
 
-import { I18N_CONFIGURATION_FILE_NAME } from './config/const';
 import Logger from './util/logger';
-import { generateConfiguration } from './util/fileHelper';
+import { generateConfiguration, parseI18nConf } from './util/fileHelper';
 import run from './wrapper';
-
 import pkg from '../package.json';
 
 function init() {
@@ -24,64 +21,65 @@ function init() {
     });
 
   program
-    .command('add-locale <locales...>')
-    .description('添加多语言')
-    .action((locales) => {
-      console.log(locales);
-      // Todo 生成多语言文件
-    });
-
-  program
-    .command('wrap [path]')
-    // .option(
-    //   '-p, --srcPath [srcPath]',
-    //   '文件或文件夹路径',
-    //   i18nDefaultConfiguration.srcPath,
-    // )
-    // .option(
-    //   '-w, --wrapperFuncName [name]',
-    //   '包裹方法名',
-    //   i18nDefaultConfiguration.wrapperFuncName,
-    // )
-    .description('包裹词条')
-    .action(async (filePath, cmdObj) => {
-      // console.log(cmdObj.srcPath);
-      // console.log(cmdObj.wrapperFuncName);
-      // console.log(`filepath: ${filePath}`);
-      const configFileName = path.resolve(I18N_CONFIGURATION_FILE_NAME);
-      const isConfigFileExist = fs.existsSync(configFileName);
-      if (isConfigFileExist) {
-        const configFile = await import(configFileName);
-        const specifiedPath = filePath || configFile.srcPath;
+    .command('we [filePath]')
+    .description('we:(wrap & extract) 包裹 & 提取词条')
+    .action(async (filePath) => {
+      const i18nConf = parseI18nConf();
+      if (i18nConf) {
+        const specifiedPath = filePath || i18nConf.srcPath;
         if (specifiedPath) {
           const absolutePath = path.resolve(specifiedPath);
-          run(absolutePath, configFile);
+          run(absolutePath, i18nConf);
         } else {
           Logger.error(
-            '【路径错误】请检查命令行【wrap】后的路径 或 i18n.config.json 【srcPath】配置',
+            '【路径错误】请检查命令行【we】后的路径 或 i18n.config.json 中【srcPath】配置',
           );
           Logger.error(`当前获取路径为：${specifiedPath}`);
         }
-      } else {
-        Logger.error('【配置错误】请先运行 i18n-helper init 生成配置文件');
       }
     });
 
   program
-    .command('extract <filePath>')
+    .command('wrap [filePath]')
+    .description('包裹词条')
+    .action((filePath) => {
+      Logger.info('coming soon...');
+    });
+
+  program
+    .command('extract [filePath]')
     .description('提取词条')
     .action((filePath) => {
-      console.log(filePath);
+      Logger.info('coming soon...');
+    });
+
+  program
+    .command('translate [language]')
+    .description('自动翻译')
+    .action((language) => {
+      Logger.info('coming soon...');
+    });
+
+  program
+    .command('count [language]')
+    .description('统计翻译情况')
+    .action((language) => {
+      const i18nConf = parseI18nConf();
+      if (i18nConf) {
+        console.log('i18n');
+      }
     });
 
   program.on('--help', () => {
     Logger.info(`
   使用指南：
-    i18n-helper config -y                   # 初始化默认i18n配置文件
-    i18n-helper config                      # 自定义初始化i18n配置文件
-    i18n-helper add-locale <locales...>     # 添加多语言文件
-    i18n-helper wrap [path]                 # 包裹词条
-    i18n-helper extract [path]              # 提取词条
+    i18n-helper init -y                     # 生成i18n配置文件（i18n.config.json），默认React模式
+    i18n-helper init                        # 自定义生成i18n配置文件(（i18n.config.json）)
+    i18n-helper we [filePath]               # 提取 & 包裹词条，不传filePath，则以i18n配置文件中srcPath为准
+    i18n-helper wrap [filePath]             # 包裹词条，不传filePath，则取i18n配置文件中srcPath
+    i18n-helper extract [filePath]          # 提取词条，不传filePath，则取i18n配置文件中srcPath
+    i18n-helper translate [language]        # 自动翻译，不传language，则取i18n配置文件中languages
+    i18n-helper count [language]            # 统计翻译，不传language，则取i18n配置文件中languages
 
     详情参见：https://github.com/wuqiang1985/i18n-helper
     `);

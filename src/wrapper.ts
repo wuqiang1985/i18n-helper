@@ -13,6 +13,7 @@ import { formatJSON } from './util/helper';
 import { iTransInfo, iI18nConf } from './types';
 
 const originalScanWordInfoList: any[] = [];
+let generateFileCount = 0;
 
 /**
  * 生成包裹词条的文件
@@ -35,7 +36,6 @@ const generateFile = (
     singleQuote: true,
   });
 
-  // const distFilename = `${distPath}${path.basename(filename)}`;
   fs.writeFileSync(filename, code, 'utf8');
 };
 
@@ -45,7 +45,7 @@ const generateFile = (
  * @param i18nConfig i18n配置
  */
 const extractWording = async (wordInfoArray: any[], i18nConf: iI18nConf) => {
-  const { localeDir, transFileName, transFileExt, languages } = i18nConf;
+  const { localeDir, transFileName, transFileExt, parsedLanguages } = i18nConf;
   const wordList = _.flattenDeep(wordInfoArray);
   // groupedWordList 结构，按key聚合
   // {
@@ -63,7 +63,7 @@ const extractWording = async (wordInfoArray: any[], i18nConf: iI18nConf) => {
   const obj: any = {};
 
   // 遍历翻译文件
-  languages.split(',').map((lang) => {
+  parsedLanguages?.map((lang) => {
     const transFile = `${path.resolve(
       localeDir,
       lang,
@@ -91,7 +91,7 @@ const extractWording = async (wordInfoArray: any[], i18nConf: iI18nConf) => {
         const newObj = { ...transObj, ...obj };
 
         fs.writeFileSync(transFile, formatJSON(newObj), 'utf8');
-        Logger.success('词条提取成功！');
+        Logger.success('【提取】词条提取已完成！');
       } else {
         Logger.warning('本次无词条变动！');
       }
@@ -129,6 +129,7 @@ const wrap = (files: string[], i18nConf: iI18nConf): void => {
       }
 
       if (needTranslate) {
+        generateFileCount += 1;
         generateFile(transInfo, code, filename, i18nConf);
       }
     }
@@ -136,11 +137,13 @@ const wrap = (files: string[], i18nConf: iI18nConf): void => {
 
   if (originalScanWordInfoList.length > 0) {
     extractWording(originalScanWordInfoList, i18nConf);
-  } else {
-    console.log('...');
   }
 
-  Logger.success('文件包裹已完成！');
+  if (generateFileCount > 0) {
+    Logger.success('【包裹】词条包裹已完成！');
+  } else {
+    Logger.warning('本次无词条被包裹！');
+  }
 };
 
 /**
@@ -149,7 +152,7 @@ const wrap = (files: string[], i18nConf: iI18nConf): void => {
  * @param i18nConfig i18n配置
  */
 const run = (filePath: string, i18nConf: iI18nConf): void => {
-  Logger.info('开始包裹词条');
+  Logger.info('开始 【包裹】 & 【提取】词条');
   const start = process.hrtime.bigint();
   fs.stat(filePath, (err, stat): void => {
     if (err) {

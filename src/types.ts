@@ -23,4 +23,6 @@ export interface iI18nConf {
   languages: string;
   transFileName: string;
   transFileExt: string;
+  parsedExclude?: string[];
+  parsedLanguages?: string[];
 }
