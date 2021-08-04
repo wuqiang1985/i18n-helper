@@ -23,7 +23,7 @@
 
 减少低效无意义劳动，提高生活质量！！！
 
-自动`包裹词条`，`提取词条`，
+自动`包裹词条`，`提取词条`
 
 ## 安装
 
@@ -46,9 +46,9 @@ i18n-helper init -y
 
 ```shell
 # 包裹 & 提取 i18n.config.json 中 srcPath 内符合规则的词条
-i18n-helper wrap
+i18n-helper we
 # 包裹 & 提取 指定路径或文件内符合规则的词条
-i18n-helper wrap [path|filename]
+i18n-helper we [path|filename]
 ```
 
 ## 配置说明

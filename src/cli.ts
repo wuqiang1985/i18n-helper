@@ -6,6 +6,7 @@ import { program } from 'commander';
 import Logger from './util/logger';
 import { generateConfiguration, parseI18nConf } from './util/fileHelper';
 import run from './wrapper';
+import count from './statistics';
 import pkg from '../package.json';
 
 function init() {
@@ -63,10 +64,11 @@ function init() {
   program
     .command('count [language]')
     .description('统计翻译情况')
-    .action((language) => {
+    .action((language: string | undefined) => {
       const i18nConf = parseI18nConf();
       if (i18nConf) {
-        console.log('i18n');
+        const languages = language || i18nConf.languages;
+        count(languages, i18nConf);
       }
     });
 

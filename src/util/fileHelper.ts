@@ -83,7 +83,7 @@ const isI18nConfExited = () => {
  * 读取 i18n 配置文件
  * @returns i18n 配置对象
  */
-const parseI18nConf = (): any => {
+const parseI18nConf = (): iI18nConf | null => {
   const configFileName = path.resolve(I18N_CONFIGURATION_FILE_NAME);
 
   if (isI18nConfExited()) {

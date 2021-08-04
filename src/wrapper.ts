@@ -69,16 +69,9 @@ const extractWording = async (wordInfoArray: any[], i18nConf: iI18nConf) => {
       lang,
       transFileName,
     )}.${transFileExt}`;
-    const isTransFilesExits = fs.existsSync(transFile);
+    const isTransFilesExited = fs.existsSync(transFile);
 
-    if (!isTransFilesExits) {
-      // 翻译文件不存在，新建翻译文件，写入【新增】 key: ''
-      scannedWordings.map((key) => {
-        obj[key] = '';
-      });
-
-      fse.outputFileSync(transFile, formatJSON(obj));
-    } else {
+    if (isTransFilesExited) {
       // 翻译文件存在，修改翻译文件，写入 【修改】 & 【新增 】key: ‘’
       const transObj = fse.readJSONSync(transFile);
       const existWording = Object.keys(transObj);
@@ -91,10 +84,18 @@ const extractWording = async (wordInfoArray: any[], i18nConf: iI18nConf) => {
         const newObj = { ...transObj, ...obj };
 
         fs.writeFileSync(transFile, formatJSON(newObj), 'utf8');
-        Logger.success('【提取】词条提取已完成！');
+        Logger.success(`【提取】【${lang}】词条提取已完成！`);
       } else {
-        Logger.warning('本次无词条变动！');
+        Logger.warning(`【提取】【${lang}】本次无词条变动！`);
       }
+    } else {
+      // 翻译文件不存在，新建翻译文件，写入【新增】 key: ''
+      scannedWordings.map((key) => {
+        obj[key] = '';
+      });
+
+      fse.outputFileSync(transFile, formatJSON(obj));
+      Logger.success(`【提取】【${lang}】词条提取已完成！`);
     }
   });
 };
@@ -142,7 +143,7 @@ const wrap = (files: string[], i18nConf: iI18nConf): void => {
   if (generateFileCount > 0) {
     Logger.success('【包裹】词条包裹已完成！');
   } else {
-    Logger.warning('本次无词条被包裹！');
+    Logger.warning('【包裹】本次无词条被包裹！');
   }
 };
 
