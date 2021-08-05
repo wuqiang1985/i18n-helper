@@ -26,3 +26,10 @@ export interface iI18nConf {
   parsedExclude?: string[];
   parsedLanguages?: string[];
 }
+
+export interface iCmd {
+  wrap: boolean;
+  extract: boolean;
+  translate: boolean;
+  count: boolean;
+}

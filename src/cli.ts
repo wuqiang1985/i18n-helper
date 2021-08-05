@@ -8,6 +8,7 @@ import { generateConfiguration, parseI18nConf } from './util/fileHelper';
 import run from './wrapper';
 import count from './statistics';
 import pkg from '../package.json';
+import { iCmd } from './types';
 
 function init() {
   program.version(pkg.version, '-v, --version');
@@ -22,15 +23,19 @@ function init() {
     });
 
   program
-    .command('we [filePath]')
-    .description('we:(wrap & extract) 包裹 & 提取词条')
-    .action(async (filePath) => {
+    .command('scan [filePath]')
+    .description('包裹 & 提取 & 自动翻译 & 统计翻译情况')
+    .option('-w, --wrap', '包裹词条')
+    .option('-e, --extract', '提取词条')
+    .option('-t, --translate', '自动翻译')
+    .option('-c, --count', '统计翻译情况')
+    .action((filePath: undefined | string, cmdObj: iCmd) => {
       const i18nConf = parseI18nConf();
       if (i18nConf) {
         const specifiedPath = filePath || i18nConf.srcPath;
         if (specifiedPath) {
           const absolutePath = path.resolve(specifiedPath);
-          run(absolutePath, i18nConf);
+          run(absolutePath, i18nConf, cmdObj);
         } else {
           Logger.error(
             '【路径错误】请检查命令行【we】后的路径 或 i18n.config.json 中【srcPath】配置',
@@ -43,15 +48,51 @@ function init() {
   program
     .command('wrap [filePath]')
     .description('包裹词条')
-    .action((filePath) => {
-      Logger.info('coming soon...');
+    .action((filePath: string | undefined) => {
+      const i18nConf = parseI18nConf();
+      if (i18nConf) {
+        const specifiedPath = filePath || i18nConf.srcPath;
+        if (specifiedPath) {
+          const absolutePath = path.resolve(specifiedPath);
+          const cmdConf: iCmd = {
+            wrap: true,
+            extract: false,
+            translate: false,
+            count: false,
+          };
+          run(absolutePath, i18nConf, cmdConf);
+        } else {
+          Logger.error(
+            '【路径错误】请检查命令行【we】后的路径 或 i18n.config.json 中【srcPath】配置',
+          );
+          Logger.error(`当前获取路径为：${specifiedPath}`);
+        }
+      }
     });
 
   program
-    .command('extract [filePath]')
+    .command(' [filePath]')
     .description('提取词条')
-    .action((filePath) => {
-      Logger.info('coming soon...');
+    .action((filePath: string | undefined) => {
+      const i18nConf = parseI18nConf();
+      if (i18nConf) {
+        const specifiedPath = filePath || i18nConf.srcPath;
+        if (specifiedPath) {
+          const absolutePath = path.resolve(specifiedPath);
+          const cmdConf: iCmd = {
+            wrap: false,
+            extract: true,
+            translate: false,
+            count: false,
+          };
+          run(absolutePath, i18nConf, cmdConf);
+        } else {
+          Logger.error(
+            '【路径错误】请检查命令行【we】后的路径 或 i18n.config.json 中【srcPath】配置',
+          );
+          Logger.error(`当前获取路径为：${specifiedPath}`);
+        }
+      }
     });
 
   program

@@ -10,7 +10,7 @@ import i18nPlugin from './plugin/babelPlugin';
 import { getMatchedFiles } from './util/fileHelper';
 import Logger from './util/logger';
 import { formatJSON } from './util/helper';
-import { iTransInfo, iI18nConf } from './types';
+import { iTransInfo, iI18nConf, iCmd } from './types';
 
 const originalScanWordInfoList: any[] = [];
 let generateFileCount = 0;
@@ -104,8 +104,9 @@ const extractWording = async (wordInfoArray: any[], i18nConf: iI18nConf) => {
  * 包裹词条
  * @param files 需要执行包裹词条的文件
  * @param i18nConf 18n配置
+ * @param cmdConf 命令配置
  */
-const wrap = (files: string[], i18nConf: iI18nConf): void => {
+const wrap = (files: string[], i18nConf: iI18nConf, cmdConf: iCmd): void => {
   files.forEach((filename) => {
     const transInfo: iTransInfo = {
       needT: false,
@@ -130,20 +131,22 @@ const wrap = (files: string[], i18nConf: iI18nConf): void => {
       }
 
       if (needTranslate) {
-        generateFileCount += 1;
-        generateFile(transInfo, code, filename, i18nConf);
+        if (cmdConf.wrap) {
+          generateFileCount += 1;
+          generateFile(transInfo, code, filename, i18nConf);
+        }
       }
     }
   });
 
-  if (originalScanWordInfoList.length > 0) {
-    extractWording(originalScanWordInfoList, i18nConf);
-  }
-
   if (generateFileCount > 0) {
     Logger.success('【包裹】词条包裹已完成！');
-  } else {
+  } else if (cmdConf.wrap) {
     Logger.warning('【包裹】本次无词条被包裹！');
+  }
+
+  if (originalScanWordInfoList.length > 0 && cmdConf.extract) {
+    extractWording(originalScanWordInfoList, i18nConf);
   }
 };
 
@@ -151,9 +154,24 @@ const wrap = (files: string[], i18nConf: iI18nConf): void => {
  * 包裹 & 提取词条
  * @param filePath 需要包裹词条路径
  * @param i18nConfig i18n配置
+ * @param cmdConf 命令配置
  */
-const run = (filePath: string, i18nConf: iI18nConf): void => {
-  Logger.info('开始 【包裹】 & 【提取】词条');
+const run = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
+  const cmdObj = {
+    wrap: '【包裹】',
+    extract: '【提取】',
+    translate: '【翻译】',
+    count: '【统计】',
+  };
+  const cmdNames: string[] = [];
+  Object.keys(cmdConf).map((key) => {
+    if (cmdConf[key as keyof iCmd]) {
+      cmdNames.push(cmdObj[key as keyof iCmd]);
+    }
+  });
+
+  Logger.info(`开始 ${cmdNames.join(',')}词条`);
+
   const start = process.hrtime.bigint();
   fs.stat(filePath, (err, stat): void => {
     if (err) {
@@ -164,7 +182,7 @@ const run = (filePath: string, i18nConf: iI18nConf): void => {
 
     const files = getMatchedFiles(filePath, stat, i18nConf);
     if (files.length > 0) {
-      wrap(files, i18nConf);
+      wrap(files, i18nConf, cmdConf);
       const end = process.hrtime.bigint();
 
       Logger.info(`耗时：${(end - start) / 1000000n}ms`);
