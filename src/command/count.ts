@@ -3,20 +3,22 @@ import fs from 'fs';
 
 import fse from 'fs-extra';
 
-import Logger from './util/logger';
-import { iI18nConf } from './types';
+import Logger from '../util/logger';
+import { iI18nConf } from '../types';
 
 /**
  * 统计词条翻译情况
  * @param languages 指定语言，多个用,分开
  * @param i18nConf i18n 配置对象
  */
-const count = (languages: string, i18nConf: iI18nConf): void => {
+const count = (languages: string | string[], i18nConf: iI18nConf): void => {
   const { localeDir, transFileName, transFileExt } = i18nConf;
   const translationStatistics: any = {};
   const transFileMissed: string[] = [];
+  const curLanguages =
+    typeof languages === 'string' ? languages.split(',') : languages;
 
-  languages.split(',').map((lang) => {
+  curLanguages.map((lang) => {
     const transFile = `${path.resolve(
       localeDir,
       lang,
@@ -34,16 +36,18 @@ const count = (languages: string, i18nConf: iI18nConf): void => {
       ).length;
 
       translationStatistics[lang] = {
-        total: totalKeyCount,
-        miss: unTranslatedCount,
-        missRate: `${((unTranslatedCount / totalKeyCount) * 100).toFixed(2)}%`,
+        总词条数: totalKeyCount,
+        未翻译词条数: unTranslatedCount,
+        未翻译比例: `${((unTranslatedCount / totalKeyCount) * 100).toFixed(
+          2,
+        )}%`,
       };
     } else {
       transFileMissed.push(lang);
       translationStatistics[lang] = {
-        total: '-',
-        miss: '-',
-        missRate: '-',
+        总词条数: '-',
+        未翻译词条数: '-',
+        未翻译比例: '-',
       };
     }
   });

@@ -26,6 +26,9 @@
   "bin": {
     "i18n-helper": "./src/cli.js"
   },
+  "engines": {
+    "node": ">= 14.0.0"
+  },
   "homepage": "https://github.com/wuqiang1985/i18n-helper#readme",
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
