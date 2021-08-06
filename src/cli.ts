@@ -7,6 +7,7 @@ import Logger from './util/logger';
 import { generateConfiguration, parseI18nConf } from './util/fileHelper';
 import doScan from './command/scan';
 import count from './command/count';
+import translate from './command/translate';
 import pkg from '../package.json';
 import { iCmd } from './types';
 
@@ -60,11 +61,12 @@ function init() {
         translate: false,
         count: false,
       };
+
       scan(filePath, cmdConf);
     });
 
   program
-    .command(' [filePath]')
+    .command('extract [filePath]')
     .description('提取词条')
     .action((filePath: string | undefined) => {
       const cmdConf: iCmd = {
@@ -73,14 +75,20 @@ function init() {
         translate: false,
         count: false,
       };
+
       scan(filePath, cmdConf);
     });
 
   program
     .command('translate [language]')
     .description('自动翻译')
-    .action((language) => {
-      Logger.info('coming soon...');
+    .action((language: string | undefined) => {
+      const i18nConf = parseI18nConf();
+      if (i18nConf) {
+        const languages = language || i18nConf.languages;
+
+        translate(languages, i18nConf);
+      }
     });
 
   program
@@ -90,6 +98,7 @@ function init() {
       const i18nConf = parseI18nConf();
       if (i18nConf) {
         const languages = language || i18nConf.languages;
+
         count(languages, i18nConf);
       }
     });

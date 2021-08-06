@@ -32,4 +32,7 @@ i18n.config.json
 # Generated translation file by i18n-help cli
 translation.json
 
+# Directory of translation files
+translations
+
 

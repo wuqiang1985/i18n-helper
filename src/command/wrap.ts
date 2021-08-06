@@ -3,12 +3,8 @@ import fs from 'fs';
 import { transformFileSync } from '@babel/core';
 import prettier from 'prettier';
 
-import extractWording from './extract';
-import count from './count';
 import i18nPlugin from '../plugin/babelPlugin';
-
 import Logger from '../util/logger';
-
 import { iTransInfo, iI18nConf, iCmd } from '../types';
 
 const originalScanWordInfoList: any[] = [];
@@ -44,7 +40,7 @@ const generateFile = (
  * @param i18nConf 18n配置
  * @param cmdConf 命令配置
  */
-const wrap = (files: string[], i18nConf: iI18nConf, cmdConf: iCmd): void => {
+const wrap = (files: string[], i18nConf: iI18nConf, cmdConf: iCmd): any[] => {
   files.forEach((filename) => {
     const transInfo: iTransInfo = {
       needT: false,
@@ -83,11 +79,7 @@ const wrap = (files: string[], i18nConf: iI18nConf, cmdConf: iCmd): void => {
     Logger.warning('【包裹】本次无词条被包裹！');
   }
 
-  if (originalScanWordInfoList.length > 0 && cmdConf.extract) {
-    extractWording(originalScanWordInfoList, i18nConf, cmdConf);
-  } else if (cmdConf.count) {
-    count(i18nConf.parsedLanguages as string[], i18nConf);
-  }
+  return originalScanWordInfoList;
 };
 
 export default wrap;

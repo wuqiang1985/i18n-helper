@@ -4,7 +4,6 @@ import path from 'path';
 import _ from 'lodash';
 import fse from 'fs-extra';
 
-import count from './count';
 import Logger from '../util/logger';
 import { formatJSON } from '../util/helper';
 import { iI18nConf, iCmd } from '../types';
@@ -14,11 +13,7 @@ import { iI18nConf, iCmd } from '../types';
  * @param wordInfoArray 扫描后得到的词条信息
  * @param i18nConfig i18n配置
  */
-const extractWording = (
-  wordInfoArray: any[],
-  i18nConf: iI18nConf,
-  cmdConf: iCmd,
-): void => {
+const extractWording = (wordInfoArray: any[], i18nConf: iI18nConf): void => {
   const { localeDir, transFileName, transFileExt, parsedLanguages } = i18nConf;
   const wordList = _.flattenDeep(wordInfoArray);
   // groupedWordList 结构，按key聚合
@@ -72,10 +67,6 @@ const extractWording = (
       Logger.success(`【提取】【${lang}】词条提取已完成！`);
     }
   });
-
-  if (cmdConf.count) {
-    count(parsedLanguages as string[], i18nConf);
-  }
 };
 
 export default extractWording;

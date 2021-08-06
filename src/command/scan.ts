@@ -1,6 +1,9 @@
 import fs from 'fs';
 
 import wrap from './wrap';
+import extractWording from './extract';
+import count from './count';
+import translate from './translate';
 import { getMatchedFiles } from '../util/fileHelper';
 import Logger from '../util/logger';
 import { iI18nConf, iCmd } from '../types';
@@ -12,6 +15,11 @@ import { iI18nConf, iCmd } from '../types';
  * @param cmdConf 命令配置
  */
 const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
+  if (Object.values(cmdConf).every((value) => !value)) {
+    Logger.error('【参数错误】请检scan后的参数 e.g i18n-helper scan -wetc');
+    return;
+  }
+
   const cmdObj = {
     wrap: '【包裹】',
     extract: '【提取】',
@@ -37,7 +45,20 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
 
     const files = getMatchedFiles(filePath, stat, i18nConf);
     if (files.length > 0) {
-      wrap(files, i18nConf, cmdConf);
+      const originalScanWordInfoList: any[] = wrap(files, i18nConf, cmdConf);
+
+      if (originalScanWordInfoList.length > 0 && cmdConf.extract) {
+        extractWording(originalScanWordInfoList, i18nConf);
+      }
+
+      if (cmdConf.translate) {
+        translate(i18nConf.parsedLanguages as string[], i18nConf);
+      }
+
+      if (cmdConf.count) {
+        count(i18nConf.parsedLanguages as string[], i18nConf);
+      }
+
       const end = process.hrtime.bigint();
 
       Logger.info(`耗时：${(end - start) / 1000000n}ms`);

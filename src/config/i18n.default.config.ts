@@ -21,4 +21,8 @@ module.exports = {
   transFileName: 'translation',
   // 翻译词条文件格式: json, po
   transFileExt: 'json',
+  // 翻译词库目录（自动翻译目录）
+  targetTransDir: './src/translations',
+  // 翻译词库文件名
+  targetTransFile: 'transLib.json',
 };
