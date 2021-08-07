@@ -25,6 +25,8 @@ export interface iI18nConf {
   transFileExt: string;
   targetTransDir: string;
   targetTransFile: string;
+  secretId: string;
+  secretKey: string;
   parsedExclude?: string[];
   parsedLanguages?: string[];
 }
@@ -32,6 +34,17 @@ export interface iI18nConf {
 export interface iCmd {
   wrap: boolean;
   extract: boolean;
-  translate: boolean;
+  translateSource: boolean;
+  translateMachine: boolean;
   count: boolean;
+}
+
+export interface iTranType {
+  machine: boolean;
+}
+
+// eslint-disable-next-line no-shadow
+export enum TransType {
+  SourceFile,
+  TMT,
 }

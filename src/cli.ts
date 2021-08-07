@@ -9,7 +9,7 @@ import doScan from './command/scan';
 import count from './command/count';
 import translate from './command/translate';
 import pkg from '../package.json';
-import { iCmd } from './types';
+import { iCmd, iTranType, TransType } from './types';
 
 function scan(filePath: string | undefined, cmdConf: iCmd) {
   const i18nConf = parseI18nConf();
@@ -45,9 +45,10 @@ function init() {
     .description('包裹 & 提取 & 自动翻译 & 统计翻译情况')
     .option('-w, --wrap', '包裹词条')
     .option('-e, --extract', '提取词条')
-    .option('-t, --translate', '自动翻译')
+    .option('-t, --translateSource', '从源文件翻译')
+    .option('-tm, --translateMachine', '机器翻译')
     .option('-c, --count', '统计翻译情况')
-    .action((filePath: undefined | string, cmdObj: iCmd) => {
+    .action(async (filePath: undefined | string, cmdObj: iCmd) => {
       scan(filePath, cmdObj);
     });
 
@@ -58,7 +59,8 @@ function init() {
       const cmdConf: iCmd = {
         wrap: true,
         extract: false,
-        translate: false,
+        translateMachine: false,
+        translateSource: false,
         count: false,
       };
 
@@ -72,7 +74,8 @@ function init() {
       const cmdConf: iCmd = {
         wrap: false,
         extract: true,
-        translate: false,
+        translateMachine: false,
+        translateSource: false,
         count: false,
       };
 
@@ -81,13 +84,18 @@ function init() {
 
   program
     .command('translate [language]')
+    .option('-m, --machine', '机器翻译')
     .description('自动翻译')
-    .action((language: string | undefined) => {
+    .action((language: string | undefined, tansType: iTranType) => {
       const i18nConf = parseI18nConf();
+
       if (i18nConf) {
         const languages = language || i18nConf.languages;
-
-        translate(languages, i18nConf);
+        if (tansType.machine) {
+          translate(languages, i18nConf, TransType.TMT);
+        } else {
+          translate(languages, i18nConf, TransType.SourceFile);
+        }
       }
     });
 

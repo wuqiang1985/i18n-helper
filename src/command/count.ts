@@ -27,9 +27,8 @@ const count = (languages: string | string[], i18nConf: iI18nConf): void => {
     const isTransFilesExited = fs.existsSync(transFile);
 
     if (isTransFilesExited) {
-      const translation = fse.readJSONSync(transFile);
+      const translation = fse.readJSONSync(transFile, { throws: false }) || {};
 
-      // console.log(translation);
       const totalKeyCount = Object.keys(translation).length;
       const unTranslatedCount = Object.values(translation).filter(
         (val) => val === '',

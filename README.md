@@ -46,11 +46,13 @@ i18n-helper init -y
 
 ```shell
 # 包裹 & 提取 & 翻译 & 统计 i18n.config.json 中 srcPath 文件中的中文词条
-# w:wrap e:extract t:translate c:count
-# 这 4 个操作可以随意组合 e.g. i18n-helper scan -we 则只会翻译 & 提取
+# w:wrap e:extract t:translate tm: translate machine c:count
+# 这 5 个操作可以随意组合 e.g. i18n-helper scan -we 则只会翻译 & 提取
 i18n-helper scan -wetc
+i18n-helper scan -we -tm -c
 # 包裹 & 提取 & 翻译 & 统计 指定路径或文件内符合规则的词条
 i18n-helper scan -wetc [path|filename]
+i18n-helper scan -we -tm -c [path|filename]
 
 # 包裹 i18n.config.json 中 srcPath 文件中的中文词条
 i18n-helper wrap
@@ -65,6 +67,19 @@ i18n-helper scan -e
 # 提取指定文件中的中文词条
 i18n-helper extract [path|filename]
 i18n-helper scan -e [path|filename]
+
+# 翻译 i18n.config.json 中配置翻译文件词条， -m 腾讯翻译君机器翻译
+# 从翻译源文件文件中翻译
+i18n-helper translate
+i18n-helper scan -t
+# 腾讯翻译君自动翻译
+i18n-helper translate -m
+i18n-helper scan -tm
+# 翻译指定语言
+# 从翻译源文件文件中翻译
+i18n-helper translate [language]
+# 腾讯翻译君自动翻译指定语言文件
+i18n-helper translate -m [language]
 
 # 统计 i18n.config.json 中翻译文件的翻译情况
 i18n-helper count

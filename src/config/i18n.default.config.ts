@@ -25,4 +25,8 @@ module.exports = {
   targetTransDir: './src/translations',
   // 翻译词库文件名
   targetTransFile: 'transLib.json',
+  // 腾讯云 secretId
+  secretId: '',
+  // 腾讯云 secretKey
+  secretKey: '',
 };

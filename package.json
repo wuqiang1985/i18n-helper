@@ -71,7 +71,8 @@
     "lodash": "^4.17.21",
     "log-symbols": "^5.0.0",
     "ora": "^5.4.1",
-    "prettier": "^2.3.2"
+    "prettier": "^2.3.2",
+    "tencentcloud-sdk-nodejs": "^4.0.178"
   },
   "lint-staged": {
     "**/*.{ts,js}": [

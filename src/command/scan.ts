@@ -6,7 +6,7 @@ import count from './count';
 import translate from './translate';
 import { getMatchedFiles } from '../util/fileHelper';
 import Logger from '../util/logger';
-import { iI18nConf, iCmd } from '../types';
+import { iI18nConf, iCmd, TransType } from '../types';
 
 /**
  * 根据命令包裹，提取，翻译，统计词条
@@ -23,7 +23,8 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
   const cmdObj = {
     wrap: '【包裹】',
     extract: '【提取】',
-    translate: '【翻译】',
+    translateSource: '【翻译 - 从源文件翻译】',
+    translateMachine: '【翻译 - TMT机器翻译】',
     count: '【统计】',
   };
   const cmdNames: string[] = [];
@@ -36,7 +37,7 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
   Logger.info(`开始 ${cmdNames.join(',')}词条`);
 
   const start = process.hrtime.bigint();
-  fs.stat(filePath, (err, stat): void => {
+  fs.stat(filePath, async (err, stat): Promise<void> => {
     if (err) {
       Logger.error('【路径错误】，请检查路径');
       Logger.error(err.message);
@@ -51,8 +52,18 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
         extractWording(originalScanWordInfoList, i18nConf);
       }
 
-      if (cmdConf.translate) {
-        translate(i18nConf.parsedLanguages as string[], i18nConf);
+      if (cmdConf.translateSource) {
+        translate(
+          i18nConf.parsedLanguages as string[],
+          i18nConf,
+          TransType.SourceFile,
+        );
+      } else {
+        await translate(
+          i18nConf.parsedLanguages as string[],
+          i18nConf,
+          TransType.TMT,
+        );
       }
 
       if (cmdConf.count) {
