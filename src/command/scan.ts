@@ -38,7 +38,7 @@ const getScanStatistics = (
   extractInfo: iExtractResult,
 ) => {
   const wrapValues = Object.values(wrapInfo);
-  const wrapFileCount = wrapValues.length - 1;
+  const wrapFileCount = wrapValues.length;
   const wrapWordCount = wrapValues.reduce((total, num) => {
     return total + num;
   });
