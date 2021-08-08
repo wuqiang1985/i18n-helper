@@ -1,16 +1,15 @@
-export interface iTransInfo {
-  needT: boolean;
-  needTrans: boolean;
-  needImport: boolean;
-  wordInfoArray: [];
-}
-
 export interface iWordInfo {
   key: string;
   filename: string;
   line: number;
 }
-
+export interface iTransInfo {
+  needT: boolean;
+  needTrans: boolean;
+  needImport: boolean;
+  wordInfoArray: iWordInfo[];
+  wrapCount: number;
+}
 export interface iI18nConf {
   projectType: string;
   srcPath: string;
@@ -47,4 +46,16 @@ export interface iTranType {
 export enum TransType {
   SourceFile,
   TMT,
+}
+
+export interface iTransObj {
+  [key: string]: string;
+}
+
+export interface iWrapResult {
+  originalScanWordInfoLit?: iWordInfo[][];
+  wrapInfo?: Record<string, number>;
+}
+export interface iExtractResult {
+  [key: string]: number;
 }

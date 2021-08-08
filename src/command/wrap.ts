@@ -5,14 +5,14 @@ import prettier from 'prettier';
 
 import i18nPlugin from '../plugin/babelPlugin';
 import Logger from '../util/logger';
-import { iTransInfo, iI18nConf, iCmd } from '../types';
+import { iTransInfo, iWordInfo, iI18nConf, iCmd, iWrapResult } from '../types';
 
-const originalScanWordInfoList: any[] = [];
+const originalScanWordInfoList: iWordInfo[][] = [];
 let generateFileCount = 0;
 
 /**
  * 生成包裹词条的文件
- * @param transInfo 扫码后得到的翻译信息
+ * @param transInfo 扫描后得到的翻译信息
  * @param code 包裹后生成的代码
  * @param filename 生成的文件名
  * @param i18nConfig i18n配置
@@ -40,13 +40,20 @@ const generateFile = (
  * @param i18nConf 18n配置
  * @param cmdConf 命令配置
  */
-const wrap = (files: string[], i18nConf: iI18nConf, cmdConf: iCmd): any[] => {
+const wrap = (
+  files: string[],
+  i18nConf: iI18nConf,
+  cmdConf: iCmd,
+): iWrapResult => {
+  const wrapResult: iWrapResult = { wrapInfo: { WRAP_FILE: 0 } };
+  const wrapInfo: Record<string, number> = {};
   files.forEach((filename) => {
     const transInfo: iTransInfo = {
       needT: false,
       needTrans: false,
       needImport: true,
       wordInfoArray: [],
+      wrapCount: 0,
     };
     const plugin = i18nPlugin(transInfo, i18nConf);
     const transResult = transformFileSync(filename, {
@@ -62,10 +69,13 @@ const wrap = (files: string[], i18nConf: iI18nConf, cmdConf: iCmd): any[] => {
       // 2. 被 t 包裹后的 中文词条 (不包含这部分的话在包裹后无法提取词条)
       if (transInfo.wordInfoArray.length > 0) {
         originalScanWordInfoList.push(transInfo.wordInfoArray);
+        wrapResult.originalScanWordInfoLit = originalScanWordInfoList;
       }
 
       if (needTranslate) {
         if (cmdConf.wrap) {
+          wrapInfo[filename] = transInfo.wrapCount;
+          wrapResult.wrapInfo = wrapInfo;
           generateFileCount += 1;
           generateFile(transInfo, code, filename, i18nConf);
         }
@@ -79,7 +89,7 @@ const wrap = (files: string[], i18nConf: iI18nConf, cmdConf: iCmd): any[] => {
     Logger.warning('【包裹】本次无词条被包裹！');
   }
 
-  return originalScanWordInfoList;
+  return wrapResult;
 };
 
 export default wrap;

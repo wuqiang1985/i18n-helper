@@ -9,7 +9,6 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
   const T_WRAPPER = i18nConf.wrapperFuncName;
 
   const plugin = ({ types: t }: { types: any }) => {
-    // const wordInfoArray = [];
     const combine = (value: string) =>
       Object.assign(t.StringLiteral(value), {
         extra: {
@@ -62,6 +61,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
             path.replaceWith(newNode);
 
             transInfo.needT = true;
+            transInfo.wrapCount += 1;
             collectWordingInfo(
               value,
               path as NodePath,
@@ -200,6 +200,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
           path.replaceWith(newNode);
 
           transInfo.needT = true;
+          transInfo.wrapCount += 1;
           collectWordingInfo(
             v,
             path as NodePath,
@@ -239,6 +240,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
             path.replaceWith(newNode);
 
             transInfo.needTrans = true;
+            transInfo.wrapCount += 1;
             collectWordingInfo(
               replaceLineBreak(node.value.trim()),
               path as NodePath,

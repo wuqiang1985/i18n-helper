@@ -111,6 +111,20 @@ function init() {
       }
     });
 
+  program
+    .command('capture [language]')
+    .description('网页截屏')
+    .action((language: string | undefined) => {
+      console.log('comming soon');
+    });
+
+  program
+    .command('checkTrans [language]')
+    .description('翻译检查')
+    .action((language: string | undefined) => {
+      console.log('comming soon');
+    });
+
   program.on('--help', () => {
     Logger.info(`
   使用指南：
