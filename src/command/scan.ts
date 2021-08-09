@@ -2,7 +2,12 @@ import fs from 'fs';
 
 import wrap from './wrap';
 import extractWording from './extract';
-import { countTranslation, countWrap, countExtract } from './count';
+import {
+  countTranslation,
+  countWrap,
+  countExtract,
+  countActionResult,
+} from './count';
 import translate from './translate';
 import { getMatchedFiles } from '../util/fileHelper';
 import Logger from '../util/logger';
@@ -63,7 +68,7 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
         const { wrapInfo } = wrapResult;
 
         if (cmdConf.wrap) {
-          countWrap(wrapInfo as Record<string, number>, humanStatistics);
+          countActionResult('wrap', wrapInfo, humanStatistics);
         }
       }
 
@@ -73,21 +78,23 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
           i18nConf,
         );
 
-        countExtract(extractResult, humanStatistics);
+        countActionResult('extract', extractResult, humanStatistics);
       }
 
-      if (cmdConf.translateSource) {
-        translate(
+      if (cmdConf.translateSource || cmdConf.translateMachine) {
+        let transType;
+        if (cmdConf.translateSource) {
+          transType = TransType.SourceFile;
+        } else {
+          transType = TransType.TMT;
+        }
+
+        const tranResult = await translate(
           i18nConf.parsedLanguages as string[],
           i18nConf,
-          TransType.SourceFile,
+          transType,
         );
-      } else if (cmdConf.translateMachine) {
-        await translate(
-          i18nConf.parsedLanguages as string[],
-          i18nConf,
-          TransType.TMT,
-        );
+        countActionResult('translate', tranResult, humanStatistics);
       }
 
       if (cmdConf.count) {

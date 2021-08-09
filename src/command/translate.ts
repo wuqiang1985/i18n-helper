@@ -6,14 +6,13 @@ import * as tencentcloud from 'tencentcloud-sdk-nodejs';
 
 import Logger from '../util/logger';
 import { formatJSON } from '../util/helper';
-import { iI18nConf, TransType } from '../types';
+import { iI18nConf, TransType, iActionResult } from '../types';
 
 /**
  * 从人工翻译词条翻译
  * @param languages 指定语言，多个用,分开
  * @param i18nConf i18n 配置对象
  */
-
 const translateSourceFile = (
   unTranslateKeys: string[],
   i18nConf: iI18nConf,
@@ -114,13 +113,13 @@ const translate = async (
   languages: string | string[],
   i18nConf: iI18nConf,
   transType: TransType,
-): Promise<void> => {
+): Promise<iActionResult> => {
+  const transResult: iActionResult = { TRANSLATE_FILE: 0 };
   const tranTypeWording =
     transType === TransType.SourceFile
       ? '【翻译 - 从源文件翻译】'
       : '【翻译 - TMT机器翻译】';
   const { localeDir, transFileName, transFileExt } = i18nConf;
-
   const curLanguages =
     typeof languages === 'string' ? languages.split(',') : languages;
 
@@ -145,6 +144,7 @@ const translate = async (
         const unTransKeys = Object.keys(unTranslatedWord);
 
         if (unTransKeys.length > 0) {
+          // 有词条需要翻译
           if (transType === TransType.SourceFile) {
             transCount = translateSourceFile(
               unTransKeys,
@@ -161,6 +161,7 @@ const translate = async (
             );
           }
           if (transCount > 0) {
+            transResult[lang] = transCount;
             fse.outputFileSync(transFile, formatJSON(source));
             Logger.success(`${tranTypeWording}【${lang}】已完成！`);
           } else {
@@ -175,6 +176,8 @@ const translate = async (
       }
     }),
   );
+
+  return transResult;
 };
 
 export default translate;

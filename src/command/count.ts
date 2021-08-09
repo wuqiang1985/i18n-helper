@@ -8,10 +8,10 @@ import { iI18nConf, iExtractResult, iActionResult } from '../types';
 import { ACTION_STATISTICS } from '../config/const';
 
 const countActionResult = (
-  action: 'wrap' | 'extract',
+  action: 'wrap' | 'extract' | 'translate',
   actionResult: iActionResult,
   humanStatistics: Record<string, any>,
-) => {
+): void => {
   const { title, time } = ACTION_STATISTICS[action];
   const actionValues = Object.values(actionResult);
   const actionFileCount = actionValues.length - 1;
@@ -104,4 +104,4 @@ const countTranslation = (
   }
 };
 
-export { countTranslation, countWrap, countExtract };
+export { countTranslation, countWrap, countExtract, countActionResult };

@@ -4,9 +4,10 @@ const FILE_TYPE = 'js,jsx,ts,tsx';
 const T_WRAPPER = 't';
 const JSX_WRAPPER = 'trans';
 
-const ACTION_STATISTICS = {
+const ACTION_STATISTICS: Record<string, any> = {
   wrap: { time: 3, title: '包裹' },
   extract: { time: 5, title: '提取' },
+  translate: { time: 20, title: '翻译' },
 };
 
 export {
