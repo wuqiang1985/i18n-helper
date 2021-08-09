@@ -63,7 +63,6 @@ const fillTransFile = (
     }
     extractResult[lang] = extractWordingCount;
 
-    // fs.writeFileSync(transFile, formatJSON(newTransObj), 'utf8');
     fse.outputFileSync(transFile, formatJSON(newTransObj));
     Logger.success(`【提取】【${lang}】词条提取已完成！`);
   } else {

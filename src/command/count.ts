@@ -4,14 +4,56 @@ import fs from 'fs';
 import fse from 'fs-extra';
 
 import Logger from '../util/logger';
-import { iI18nConf } from '../types';
+import { iI18nConf, iExtractResult, iActionResult } from '../types';
+import { ACTION_STATISTICS } from '../config/const';
+
+const countActionResult = (
+  action: 'wrap' | 'extract',
+  actionResult: iActionResult,
+  humanStatistics: Record<string, any>,
+) => {
+  const { title, time } = ACTION_STATISTICS[action];
+  const actionValues = Object.values(actionResult);
+  const actionFileCount = actionValues.length - 1;
+  const actionWordCount = actionValues.reduce((total, num) => {
+    return total + num;
+  });
+
+  humanStatistics[title] = {
+    文件: actionFileCount,
+    词条: actionWordCount,
+    预计节省人力: `${actionWordCount * time}s`,
+  };
+};
+
+/**
+ * 统计包裹结果信息
+ * @param wrapInfo 包裹结果信息
+ * @param humanStatistics 人力耗时信息
+ */
+const countWrap = (
+  wrapInfo: Record<string, number>,
+  humanStatistics: Record<string, any>,
+): void => {
+  countActionResult('wrap', wrapInfo, humanStatistics);
+};
+
+const countExtract = (
+  extractInfo: iExtractResult,
+  humanStatistics: Record<string, any>,
+): void => {
+  countActionResult('extract', extractInfo, humanStatistics);
+};
 
 /**
  * 统计词条翻译情况
  * @param languages 指定语言，多个用,分开
  * @param i18nConf i18n 配置对象
  */
-const count = (languages: string | string[], i18nConf: iI18nConf): void => {
+const countTranslation = (
+  languages: string | string[],
+  i18nConf: iI18nConf,
+): void => {
   const { localeDir, transFileName, transFileExt } = i18nConf;
   const translationStatistics: any = {};
   const transFileMissed: string[] = [];
@@ -62,4 +104,4 @@ const count = (languages: string | string[], i18nConf: iI18nConf): void => {
   }
 };
 
-export default count;
+export { countTranslation, countWrap, countExtract };

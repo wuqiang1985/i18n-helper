@@ -6,7 +6,7 @@ import { program } from 'commander';
 import Logger from './util/logger';
 import { generateConfiguration, parseI18nConf } from './util/fileHelper';
 import doScan from './command/scan';
-import count from './command/count';
+import { countTranslation } from './command/count';
 import translate from './command/translate';
 import pkg from '../package.json';
 import { iCmd, iTranType, TransType } from './types';
@@ -107,7 +107,7 @@ function init() {
       if (i18nConf) {
         const languages = language || i18nConf.languages;
 
-        count(languages, i18nConf);
+        countTranslation(languages, i18nConf);
       }
     });
 
@@ -115,14 +115,14 @@ function init() {
     .command('capture [language]')
     .description('网页截屏')
     .action((language: string | undefined) => {
-      console.log('comming soon');
+      console.log('coming soon');
     });
 
   program
     .command('checkTrans [language]')
     .description('翻译检查')
     .action((language: string | undefined) => {
-      console.log('comming soon');
+      console.log('coming soon');
     });
 
   program.on('--help', () => {

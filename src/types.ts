@@ -54,8 +54,12 @@ export interface iTransObj {
 
 export interface iWrapResult {
   originalScanWordInfoLit?: iWordInfo[][];
-  wrapInfo?: Record<string, number>;
+  wrapInfo: Record<string, number>;
 }
 export interface iExtractResult {
+  [key: string]: number;
+}
+
+export interface iActionResult {
   [key: string]: number;
 }

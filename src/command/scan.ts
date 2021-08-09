@@ -2,17 +2,11 @@ import fs from 'fs';
 
 import wrap from './wrap';
 import extractWording from './extract';
-import count from './count';
+import { countTranslation, countWrap, countExtract } from './count';
 import translate from './translate';
 import { getMatchedFiles } from '../util/fileHelper';
 import Logger from '../util/logger';
-import {
-  iI18nConf,
-  iCmd,
-  TransType,
-  iWordInfo,
-  iExtractResult,
-} from '../types';
+import { iI18nConf, iCmd, TransType, iWordInfo } from '../types';
 
 const getCmdNames = (cmdConf: iCmd) => {
   const cmdObj = {
@@ -33,51 +27,6 @@ const getCmdNames = (cmdConf: iCmd) => {
   return cmdNames.join(',');
 };
 
-const getScanStatistics = (
-  wrapInfo: Record<string, number>,
-  extractInfo: iExtractResult,
-) => {
-  const wrapValues = Object.values(wrapInfo);
-  const wrapFileCount = wrapValues.length;
-  const wrapWordCount = wrapValues.reduce((total, num) => {
-    return total + num;
-  });
-
-  const extractValues = Object.values(extractInfo);
-  const extractFileCount = extractValues.length - 1;
-  const extractWordCount = Object.values(extractInfo).reduce((total, num) => {
-    return total + num;
-  });
-
-  return { wrapFileCount, wrapWordCount, extractFileCount, extractWordCount };
-};
-
-const countHumanStatistics = (
-  wrapInfo: Record<string, number>,
-  extractInfo: iExtractResult,
-  cmdConf: iCmd,
-) => {
-  const { wrapFileCount, wrapWordCount, extractFileCount, extractWordCount } =
-    getScanStatistics(wrapInfo, extractInfo);
-
-  const humanStatistics: any = {};
-
-  humanStatistics['包裹'] = {
-    文件: wrapFileCount,
-    词条: wrapWordCount,
-    预计节省人力: `${wrapWordCount * 2}s`,
-  };
-
-  humanStatistics['提取'] = {
-    文件: extractFileCount,
-    词条: extractWordCount,
-    预计节省人力: `${extractWordCount * 3}s`,
-  };
-
-  Logger.info(`结束${getCmdNames(cmdConf)}已完成，详情如下：`);
-  console.table(humanStatistics);
-};
-
 /**
  * 根据命令包裹，提取，翻译，统计词条
  * @param filePath 需要包裹词条路径
@@ -91,11 +40,6 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
     return;
   }
 
-  let extractResult = {};
-
-  Logger.info(`开始 ${getCmdNames(cmdConf)}词条`);
-  const start = process.hrtime.bigint();
-
   fs.stat(filePath, async (err, stat): Promise<void> => {
     if (err) {
       Logger.error('【路径错误】，请检查路径');
@@ -105,18 +49,32 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
 
     const files = getMatchedFiles(filePath, stat, i18nConf);
     if (files.length > 0) {
-      // 不管包裹还是提取词条都需要
-      const wrapResult = wrap(files, i18nConf, cmdConf);
-      const originalScanWordInfoList =
-        wrapResult.originalScanWordInfoLit as iWordInfo[][];
-      const { wrapInfo } = wrapResult;
-      // console.log(wrapInfo);
+      Logger.info(`开始 ${getCmdNames(cmdConf)}词条`);
 
-      if (originalScanWordInfoList.length > 0 && cmdConf.extract) {
-        extractResult = extractWording(originalScanWordInfoList, i18nConf);
+      const start = process.hrtime.bigint();
+      const humanStatistics: any = {};
+      let originalScanWordInfoList: iWordInfo[][] = [];
+
+      // 包裹还是提取词条都需要，因为要做语法树分析
+      if (cmdConf.wrap || cmdConf.extract) {
+        const wrapResult = wrap(files, i18nConf, cmdConf);
+        originalScanWordInfoList =
+          wrapResult.originalScanWordInfoLit as iWordInfo[][];
+        const { wrapInfo } = wrapResult;
+
+        if (cmdConf.wrap) {
+          countWrap(wrapInfo as Record<string, number>, humanStatistics);
+        }
       }
 
-      // console.log(extractResult);
+      if (originalScanWordInfoList.length > 0 && cmdConf.extract) {
+        const extractResult = extractWording(
+          originalScanWordInfoList,
+          i18nConf,
+        );
+
+        countExtract(extractResult, humanStatistics);
+      }
 
       if (cmdConf.translateSource) {
         translate(
@@ -133,18 +91,16 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
       }
 
       if (cmdConf.count) {
-        count(i18nConf.parsedLanguages as string[], i18nConf);
+        countTranslation(i18nConf.parsedLanguages as string[], i18nConf);
       }
 
       const end = process.hrtime.bigint();
-      // console.log(wrapInfo);
-      countHumanStatistics(
-        wrapInfo as Record<string, number>,
-        extractResult,
-        cmdConf,
-      );
 
-      Logger.info(`【完成】耗时：${(end - start) / 1000000n}ms`);
+      Logger.info(
+        `结束${getCmdNames(cmdConf)}词条
+耗时：${(end - start) / 1000000n}ms，详情如下`,
+      );
+      console.table(humanStatistics);
     } else {
       Logger.warning('【该目录下不存在指定文件】请检查路径');
     }

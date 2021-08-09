@@ -74,8 +74,9 @@ const wrap = (
 
       if (needTranslate) {
         if (cmdConf.wrap) {
-          wrapInfo[filename] = transInfo.wrapCount;
-          wrapResult.wrapInfo = wrapInfo;
+          // wrapInfo[filename] = transInfo.wrapCount;
+
+          wrapResult.wrapInfo[filename] = transInfo.wrapCount;
           generateFileCount += 1;
           generateFile(transInfo, code, filename, i18nConf);
         }
