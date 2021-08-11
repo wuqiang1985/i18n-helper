@@ -127,17 +127,7 @@ function init() {
 
   program.on('--help', () => {
     Logger.info(`
-  使用指南：
-    i18n-helper init -y                     # 生成i18n配置文件（i18n.config.json），默认React模式
-    i18n-helper init                        # 自定义生成i18n配置文件(（i18n.config.json）)
-    i18n-helper we [filePath]               # 提取 & 包裹词条，不传filePath，则以i18n配置文件中srcPath为准
-    i18n-helper wrap [filePath]             # 包裹词条，不传filePath，则取i18n配置文件中srcPath
-    i18n-helper extract [filePath]          # 提取词条，不传filePath，则取i18n配置文件中srcPath
-    i18n-helper translate [language]        # 自动翻译，不传language，则取i18n配置文件中languages
-    i18n-helper count [language]            # 统计翻译，不传language，则取i18n配置文件中languages
-
-    详情参见：https://github.com/wuqiang1985/i18n-helper
-    `);
+详情参见：https://github.com/wuqiang1985/i18n-helper`);
   });
 
   program.parse(process.argv);

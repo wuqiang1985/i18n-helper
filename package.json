@@ -1,22 +1,30 @@
 {
   "name": "i18n-helper",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
+  "description": "i18n 命令行工具。一键包裹，提取，翻译，统计。支持网页截图，翻译词条检测",
+  "main": ".src/cli.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky install",
     "pre-commit": "lint-staged",
     "build": "tsc",
     "copy": "cp ./README.md ./dist ",
-    "prepublish": "rimraf ./dist && npm run build && npm run copy"
+    "npm-publish": "rimraf ./dist && npm run build && npm run copy && cd ./dist"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wuqiang1985/i18n-helper.git"
   },
   "keywords": [
-    "i18n"
+    "i18n",
+    "wrap",
+    "extract",
+    "translate",
+    "screenshot",
+    "包裹",
+    "提取",
+    "翻译",
+    "截图"
   ],
   "author": "wuqiang",
   "license": "MIT",
