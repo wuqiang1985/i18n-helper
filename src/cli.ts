@@ -127,7 +127,7 @@ function init() {
 
   program.on('--help', () => {
     Logger.info(`
-详情参见：https://github.com/wuqiang1985/i18n-helper`);
+ 详情参见：https://github.com/wuqiang1985/i18n-helper`);
   });
 
   program.parse(process.argv);
