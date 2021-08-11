@@ -1,0 +1,18 @@
+{
+  "projectType": "[react]",
+  "srcPath": "./src",
+  "fileExt": "js,jsx,ts,tsx",
+  "wrapperFuncName": "t",
+  "jsx2Trans": false,
+  "importStr": "import { useTranslation } from 'react-i18next';\n",
+  "exclude": "node_modules,dist,git",
+  "localeDir": "./public/locales",
+  "languages": "zh,en",
+  "sourceLanguage": "zh",
+  "transFileName": "translation",
+  "transFileExt": "json",
+  "targetTransDir": "./src/translations",
+  "targetTransFile": "transLib.json",
+  "secretId": "",
+  "secretKey": ""
+}
