@@ -46,7 +46,7 @@ const wrap = (
   cmdConf: iCmd,
 ): iWrapResult => {
   const wrapResult: iWrapResult = { wrapInfo: { WRAP_FILE: 0 } };
-  const wrapInfo: Record<string, number> = {};
+
   files.forEach((filename) => {
     const transInfo: iTransInfo = {
       needT: false,
@@ -57,7 +57,12 @@ const wrap = (
     };
     const plugin = i18nPlugin(transInfo, i18nConf);
     const transResult = transformFileSync(filename, {
-      plugins: [['@babel/plugin-syntax-typescript', { isTSX: true }], plugin],
+      plugins: [
+        ['@babel/plugin-syntax-typescript', { isTSX: true }],
+        ['@babel/plugin-proposal-decorators', { legacy: true }],
+        ['@babel/plugin-proposal-class-properties', { loose: true }],
+        plugin,
+      ],
     });
 
     if (transResult) {
@@ -74,8 +79,6 @@ const wrap = (
 
       if (needTranslate) {
         if (cmdConf.wrap) {
-          // wrapInfo[filename] = transInfo.wrapCount;
-
           wrapResult.wrapInfo[filename] = transInfo.wrapCount;
           generateFileCount += 1;
           generateFile(transInfo, code, filename, i18nConf);

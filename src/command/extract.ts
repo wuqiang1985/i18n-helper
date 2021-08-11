@@ -81,7 +81,13 @@ const extractWording = (
 ): iExtractResult => {
   // 提取结果
   const extractResult: iExtractResult = { EXTRACT_FILE: 0 };
-  const { localeDir, transFileName, transFileExt, parsedLanguages } = i18nConf;
+  const {
+    localeDir,
+    transFileName,
+    transFileExt,
+    parsedLanguages,
+    sourceLanguage,
+  } = i18nConf;
 
   const scannedWordings = getScannedUniqueKeys(originalScannedWordInfo);
 
@@ -104,7 +110,24 @@ const extractWording = (
       fillTransFile(lang, transFile, AUWordings, extractResult, existObj);
     } else {
       // 翻译文件不存在，新建翻译文件，写入【新增】 key: ''
-      fillTransFile(lang, transFile, scannedWordings, extractResult);
+      let sourceTransKeys: string[] = [];
+
+      const sourceTransFile = `${path.resolve(
+        localeDir,
+        sourceLanguage,
+        transFileName,
+      )}.${transFileExt}`;
+      const isSourceTransFilesExited = fs.existsSync(sourceTransFile);
+      if (isSourceTransFilesExited) {
+        sourceTransKeys = Object.keys(fse.readJSONSync(sourceTransFile));
+      }
+
+      fillTransFile(
+        lang,
+        transFile,
+        _.uniq([...sourceTransKeys, ...scannedWordings]),
+        extractResult,
+      );
     }
   });
 

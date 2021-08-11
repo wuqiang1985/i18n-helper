@@ -2,12 +2,7 @@ import fs from 'fs';
 
 import wrap from './wrap';
 import extractWording from './extract';
-import {
-  countTranslation,
-  countWrap,
-  countExtract,
-  countActionResult,
-} from './count';
+import { countTranslation, countActionResult } from './count';
 import translate from './translate';
 import { getMatchedFiles } from '../util/fileHelper';
 import Logger from '../util/logger';

@@ -16,7 +16,9 @@ module.exports = {
   // 翻译词条目录
   localeDir: './locales',
   // 翻译语种
-  languages: 'zh_CN,en',
+  languages: 'zh,en',
+  // 源语言
+  sourceLanguage: 'zh',
   // 翻译词条文件名
   transFileName: 'translation',
   // 翻译词条文件格式: json, po

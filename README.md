@@ -109,11 +109,21 @@ module.exports = {
   // 翻译词条目录
   localeDir: './locales',
   // 翻译语种
-  languages: 'zh_CN,en',
+  languages: 'zh,en',
+  // 源语言
+  sourceLanguage: 'zh',
   // 翻译词条文件名
   transFileName: 'translation',
-  // 翻译词条文件格式: json | po
+  // 翻译词条文件格式: json, po
   transFileExt: 'json',
+  // 翻译词库目录（自动翻译目录）
+  targetTransDir: './src/translations',
+  // 翻译词库文件名
+  targetTransFile: 'transLib.json',
+  // 腾讯云 secretId
+  secretId: '',
+  // 腾讯云 secretKey
+  secretKey: '',
 };
 ```
 
