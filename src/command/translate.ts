@@ -2,29 +2,32 @@ import path from 'path';
 import fs from 'fs';
 
 import fse from 'fs-extra';
-import * as tencentcloud from 'tencentcloud-sdk-nodejs';
+import * as tencentCloud from 'tencentcloud-sdk-nodejs';
 
 import Logger from '../util/logger';
 import { formatJSON } from '../util/helper';
 import { iI18nConf, TransType, iActionResult } from '../types';
 
 /**
- * 从人工翻译词条翻译
- * @param languages 指定语言，多个用,分开
+ * 从翻译词条数据源翻译
+ * @param targetLang 目标翻译语言
+ * @param unTranslateKeys 未翻译词条
  * @param i18nConf i18n 配置对象
+ * @param source 目标翻译原
+ * @returns 实际翻译词条数
  */
-const translateSourceFile = (
+const translateFromSourceFile = (
+  targetLang: string,
   unTranslateKeys: string[],
   i18nConf: iI18nConf,
-  lang: string,
-  source: any,
+  source: Record<string, string>,
 ) => {
   let transCount = 0;
   const { targetTransDir, targetTransFile } = i18nConf;
   // 人工翻译源文件
   const targetTranslateFile = `${path.resolve(
     targetTransDir,
-    lang,
+    targetLang,
     targetTransFile,
   )}`;
   const isTargetTranslateFileExited = fs.existsSync(targetTranslateFile);
@@ -49,19 +52,34 @@ const translateSourceFile = (
   return transCount;
 };
 
-const translateTMT = async (
+/**
+ * 机器翻译（腾讯翻译君）
+ * @param targetLang 目标翻译语言
+ * @param unTranslateKeys 未翻译词条
+ * @param i18nConf i18n 配置对象
+ * @param source 目标翻译原
+ * @returns 实际翻译词条数
+ */
+const translateFromTMT = async (
   targetLang: string,
   unTranslateKeys: string[],
   i18nConf: iI18nConf,
-  source: any,
+  source: Record<string, string>,
 ) => {
+  const { secretId, secretKey } = i18nConf;
+  if (!secretId && !secretKey) {
+    Logger.error(`【翻译错误】': secretId或secretKey不存在
+请检查i18n.config.json 中【secretId】或【secretKey】配置`);
+    return -1;
+  }
+
   let transCount = 0;
-  const TMTClient = tencentcloud.tmt.v20180321.Client;
+  const TMTClient = tencentCloud.tmt.v20180321.Client;
   const clientConfig = {
     // 腾讯云认证信息
     credential: {
-      secretId: i18nConf.secretId,
-      secretKey: i18nConf.secretKey,
+      secretId,
+      secretKey,
     },
     // 产品地域
     region: 'ap-shanghai',
@@ -90,7 +108,7 @@ const translateTMT = async (
     SourceTextList: unTranslateKeys,
   });
 
-  const transObj: any = {};
+  const transObj: Record<string, string> = {};
   if (TargetTextList) {
     for (let i = 0; i < unTranslateKeys.length; i += 1) {
       transObj[unTranslateKeys[i]] = TargetTextList[i];
@@ -109,6 +127,14 @@ const translateTMT = async (
 
   return transCount;
 };
+
+/**
+ * 翻译词条
+ * @param languages 目标翻译语言列表
+ * @param i18nConf i18n 配置对象
+ * @param transType 翻译方式
+ * @returns 翻译结果信息
+ */
 const translate = async (
   languages: string | string[],
   i18nConf: iI18nConf,
@@ -143,28 +169,30 @@ const translate = async (
         );
         const unTransKeys = Object.keys(unTranslatedWord);
 
+        // 有词条需要翻译
         if (unTransKeys.length > 0) {
-          // 有词条需要翻译
           if (transType === TransType.SourceFile) {
-            transCount = translateSourceFile(
+            transCount = translateFromSourceFile(
+              lang,
               unTransKeys,
               i18nConf,
-              lang,
               source,
             );
           } else {
-            transCount = await translateTMT(
+            transCount = await translateFromTMT(
               lang,
               unTransKeys,
               i18nConf,
               source,
             );
           }
+
+          // 翻译词条数大于 0
           if (transCount > 0) {
             transResult[lang] = transCount;
             fse.outputFileSync(transFile, formatJSON(source));
             Logger.success(`${tranTypeWording}【${lang}】已完成！`);
-          } else {
+          } else if (transCount === 0) {
             Logger.warning(`${tranTypeWording}【${lang}】本次无词条被翻译！`);
           }
         } else {
