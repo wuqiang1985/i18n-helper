@@ -183,3 +183,8 @@ module.exports = {
 ## Other
 
 目前还在完善中，欢迎大家试用，大家有问题可以提 issue。
+
+如果您觉得这个工具能帮到解决日常工作的问题，确实提升了效率，请扫下面的二维码，谢谢。
+
+<img src="https://user-images.githubusercontent.com/1751494/129164802-0f1c4580-2515-4497-8d60-32738061101a.jpeg" align="left" height="250" width="250" />
+<img src="https://user-images.githubusercontent.com/1751494/129164856-8793b9d1-5bc4-4e6e-be8d-c16b20c216c3.jpeg" height="250" width="200" />
