@@ -3,6 +3,7 @@
 ## What is i18n-helper-cli
 
 i18n-helper-cli 是一个 Web 国际化整体解决方案，包含自动`包裹词条`，`提取词条`， `翻译词条`，`词条翻译统计`，`节省人力预估统计`，`网页多语言显示异常检测`（Coming soon）等功能。可以大大减低开发，测试，翻译各个角色的人力成本，减少重复劳动，低级错误。
+![i18n-helper-cli](https://user-images.githubusercontent.com/1751494/129152542-77d9ed28-5abd-4f98-8302-2c657d20019d.gif)
 
 ## Why do we need i18n-helper-cli
 
