@@ -74,8 +74,9 @@ const getMatchedFiles = (
  * i18n配置文件是否存在
  * @returns i18n配置文件是否存在
  */
-const isI18nConfExited = () => {
+const isI18nConfExited = (): boolean => {
   const configFileName = path.resolve(I18N_CONFIGURATION_FILE_NAME);
+
   return fs.existsSync(configFileName);
 };
 

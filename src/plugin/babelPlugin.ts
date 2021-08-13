@@ -138,10 +138,29 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 break;
               }
               case 'MemberExpression': {
-                // `我有{obj.xx}`
-                const memberExpressionName = (
-                  templateLiteralItem.property as tt.Identifier
-                ).name;
+                let memberExpressionName;
+                // `我有${obj.xx},${obj[xx]}` Identifier
+                // `我有${obj['xx']}` StringLiteral
+                // `我有${array[0]}` NumericLiteral
+                switch (templateLiteralItem.property.type) {
+                  case 'Identifier':
+                    memberExpressionName = (
+                      templateLiteralItem.property as tt.Identifier
+                    ).name;
+                    break;
+                  case 'StringLiteral':
+                    memberExpressionName = (
+                      templateLiteralItem.property as tt.StringLiteral
+                    ).value;
+                    break;
+                  case 'NumericLiteral':
+                    memberExpressionName = (
+                      templateLiteralItem.property as tt.NumericLiteral
+                    ).value.toString();
+                    break;
+                  default:
+                    break;
+                }
 
                 variable.type = 'MemberExpression';
                 variable.key = memberExpressionName;
