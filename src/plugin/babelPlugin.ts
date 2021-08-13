@@ -271,7 +271,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
 
         ImportDeclaration(path: NodePath<tt.ImportDeclaration>) {
           const { node } = path;
-          if (node.source.value === 'react-i18next') {
+          if (node.source.value === i18nConf.parsedImportKey) {
             transInfo.needImport = false;
           }
         },

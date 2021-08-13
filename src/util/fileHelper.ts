@@ -88,8 +88,11 @@ const parseI18nConf = (): iI18nConf | null => {
 
   if (isI18nConfExited()) {
     const i18nConf: iI18nConf = fse.readJSONSync(configFileName);
+    const importArray = i18nConf.importStr.split(' ');
+
     i18nConf.parsedExclude = i18nConf.exclude.split(',');
     i18nConf.parsedLanguages = i18nConf.languages.split(',');
+    i18nConf.parsedImportKey = importArray[importArray.length - 1];
 
     return i18nConf;
   }

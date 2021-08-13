@@ -29,6 +29,7 @@ export interface iI18nConf {
   secretKey: string;
   parsedExclude?: string[];
   parsedLanguages?: string[];
+  parsedImportKey: string;
 }
 
 export interface iCmd {
