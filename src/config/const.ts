@@ -1,8 +1,6 @@
 const I18N_CONFIGURATION_FILE_NAME = 'i18n.config.json';
-const FILE_TYPE = 'js,jsx,ts,tsx';
-
-const T_WRAPPER = 't';
-const JSX_WRAPPER = 'trans';
+const I18N_LOG_FILE_NAME = 'i18n.log';
+const I18N_ERROR_LOG_FILE_NAME = 'i18n.error.log';
 
 const ACTION_STATISTICS: Record<string, any> = {
   wrap: { time: 3, title: '包裹' },
@@ -12,8 +10,7 @@ const ACTION_STATISTICS: Record<string, any> = {
 
 export {
   I18N_CONFIGURATION_FILE_NAME,
-  FILE_TYPE,
-  T_WRAPPER,
-  JSX_WRAPPER,
   ACTION_STATISTICS,
+  I18N_LOG_FILE_NAME,
+  I18N_ERROR_LOG_FILE_NAME,
 };

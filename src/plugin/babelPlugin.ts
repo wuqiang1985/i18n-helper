@@ -1,8 +1,12 @@
 import type * as tt from '@babel/types';
 import type { NodePath } from '@babel/traverse';
 
+import { replace } from 'lodash';
+import Logger from '../util/logger';
 import { isChinese } from '../util/helper';
 import { iTransInfo, iI18nConf, iWordInfo } from '../types';
+
+type TLQuasisExpressions = (tt.TemplateElement | tt.Expression | tt.TSType)[];
 
 const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
   const JSX_WRAPPER = 'trans';
@@ -16,8 +20,8 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
           rawValue: value,
         },
       });
-    const replaceLineBreak = function (value: any) {
-      if (typeof value !== 'string') return value;
+
+    const replaceLineBreak = (value: string) => {
       return value.replace(/\n/g, ' ').trim();
     };
 
@@ -49,8 +53,11 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
     return {
       visitor: {
         StringLiteral(path: NodePath<tt.StringLiteral>) {
-          const { value } = path.node;
+          let { value } = path.node;
+          value = replaceLineBreak(value);
+
           if (isChinese(value)) {
+            // console.log(`string直接用 replaceLineBreak value：${value}`);
             let newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
               combine(value),
             ]);
@@ -77,28 +84,29 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
             return;
           }
 
-          type CustomArray = (tt.TemplateElement | tt.Expression | tt.TSType)[];
-          const tempArr = (
+          const quasisExpressionsList = (
             [].concat(
               path.node.quasis as [],
               path.node.expressions as [],
-            ) as CustomArray
+            ) as TLQuasisExpressions
           ).sort((a, b) => {
             const aStart = a.start ?? 0;
             const bStart = b.start ?? 0;
             return aStart - bStart;
           });
 
-          let v = '';
+          let value = '';
           const variableList: any = [];
 
           // 组装模板字符串左侧部分
-          tempArr.forEach((templateLiteralItem) => {
+          quasisExpressionsList.forEach((templateLiteralItem) => {
             const variable: any = {};
             switch (templateLiteralItem.type) {
               case 'TemplateElement':
                 // 文字
-                v += `${replaceLineBreak(templateLiteralItem.value.cooked)}`;
+                value += `${replaceLineBreak(
+                  templateLiteralItem.value.cooked ?? '',
+                )}`;
                 break;
               case 'Identifier': {
                 // `我有{xx}`
@@ -109,7 +117,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 variable.value = templateLiteralItem;
                 variableList.push(variable);
 
-                v += `{{${identifierName}}}`;
+                value += `{{${identifierName}}}`;
                 break;
               }
               case 'CallExpression': {
@@ -134,7 +142,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 variable.value = templateLiteralItem;
                 variableList.push(variable);
 
-                v += `{{${callExpressionName}}}`;
+                value += `{{${callExpressionName}}}`;
                 break;
               }
               case 'MemberExpression': {
@@ -158,6 +166,15 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                       templateLiteralItem.property as tt.NumericLiteral
                     ).value.toString();
                     break;
+                  case 'MemberExpression':
+                    memberExpressionName = (
+                      templateLiteralItem.property.property as tt.Identifier
+                    ).name;
+                    break;
+                  case 'BinaryExpression':
+                    // TODO: 需要看看怎么改
+                    memberExpressionName = 'BinaryExpression';
+                    break;
                   default:
                     break;
                 }
@@ -167,11 +184,19 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 variable.value = templateLiteralItem;
                 variableList.push(variable);
 
-                v += `{{${memberExpressionName}}}`;
+                value += `{{${memberExpressionName}}}`;
                 break;
               }
-              default:
+              default: {
+                const thisArgs = this as any;
+                const filename =
+                  thisArgs.filename || thisArgs.file.opts.filename || 'unknown';
+                const line = path.node.loc?.start?.line ?? 0;
+                Logger.appendFile(
+                  `[${filename}][${line}]: ${templateLiteralItem.type} 未处理`,
+                );
                 break;
+              }
             }
           });
 
@@ -209,19 +234,21 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
           let newNode;
           if (objArray.length > 0) {
             newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
-              combine(v),
+              combine(value),
               t.ObjectExpression(objArray),
             ]);
           } else {
             // 处理文字全用``包裹的，并没有${}的内容，如 const word = `你好`
-            newNode = t.CallExpression(t.Identifier(T_WRAPPER), [combine(v)]);
+            newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
+              combine(value),
+            ]);
           }
           path.replaceWith(newNode);
 
           transInfo.needT = true;
           transInfo.wrapCount += 1;
           collectWordingInfo(
-            v,
+            value,
             path as NodePath,
             this,
             transInfo.wordInfoArray,
@@ -234,11 +261,12 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
 
           // jsx内部文字包含中文且不被<trans></trans>包裹
           if (
-            isChinese(value) &&
-            (
-              (path.parentPath.node as tt.JSXElement).openingElement
-                .name as tt.JSXIdentifier
-            ).name !== JSX_WRAPPER
+            isChinese(value)
+            // isChinese(value) &&
+            // (
+            //   (path.parentPath.node as tt.JSXElement).openingElement
+            //     .name as tt.JSXIdentifier
+            // ).name !== JSX_WRAPPER
           ) {
             let newNode;
             if (i18nConf.jsx2Trans) {
@@ -251,6 +279,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
               );
             } else {
               // 用 t 包裹
+              // console.log(`jsx直接用value：${value}`);
               newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
                 combine(replaceLineBreak(value)),
               ]);

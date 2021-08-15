@@ -48,63 +48,73 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
     }
 
     const files = getMatchedFiles(filePath, stat, i18nConf);
-    if (files.length > 0) {
-      Logger.info(`开始 ${getCmdNames(cmdConf)}词条`);
 
-      const start = process.hrtime.bigint();
-      const humanStatistics: any = {};
-      let originalScanWordInfoList: iWordInfo[][] = [];
-
-      // 包裹还是提取词条都需要，因为要做语法树分析
-      if (cmdConf.wrap || cmdConf.extract) {
-        const wrapResult = wrap(files, i18nConf, cmdConf);
-        originalScanWordInfoList =
-          wrapResult.originalScanWordInfoLit as iWordInfo[][];
-        const { wrapInfo } = wrapResult;
-
-        if (cmdConf.wrap) {
-          countActionResult('wrap', wrapInfo, humanStatistics);
-        }
-      }
-
-      if (originalScanWordInfoList.length > 0 && cmdConf.extract) {
-        const extractResult = extractWording(
-          originalScanWordInfoList,
-          i18nConf,
+    try {
+      const fileCount = files.length;
+      if (files.length > 0) {
+        Logger.info(
+          `【开始】- 本次符合条件文件的共${fileCount}个 ${getCmdNames(
+            cmdConf,
+          )}词条`,
         );
 
-        countActionResult('extract', extractResult, humanStatistics);
-      }
+        const start = process.hrtime.bigint();
+        const humanStatistics: any = {};
+        let originalScanWordInfoList: iWordInfo[][] = [];
 
-      if (cmdConf.translateSource || cmdConf.translateMachine) {
-        let transType;
-        if (cmdConf.translateSource) {
-          transType = TransType.SourceFile;
-        } else {
-          transType = TransType.TMT;
+        // 包裹还是提取词条都需要，因为要做语法树分析
+        if (cmdConf.wrap || cmdConf.extract) {
+          const wrapResult = wrap(files, i18nConf, cmdConf);
+          originalScanWordInfoList =
+            wrapResult.originalScanWordInfoLit as iWordInfo[][];
+          const { wrapInfo } = wrapResult;
+
+          if (cmdConf.wrap) {
+            countActionResult('wrap', wrapInfo, humanStatistics);
+          }
         }
 
-        const tranResult = await translate(
-          i18nConf.parsedLanguages as string[],
-          i18nConf,
-          transType,
-        );
-        countActionResult('translate', tranResult, humanStatistics);
-      }
+        if (originalScanWordInfoList.length > 0 && cmdConf.extract) {
+          const extractResult = extractWording(
+            originalScanWordInfoList,
+            i18nConf,
+          );
 
-      if (cmdConf.count) {
-        countTranslation(i18nConf.parsedLanguages as string[], i18nConf);
-      }
+          countActionResult('extract', extractResult, humanStatistics);
+        }
 
-      const end = process.hrtime.bigint();
+        if (cmdConf.translateSource || cmdConf.translateMachine) {
+          let transType;
+          if (cmdConf.translateSource) {
+            transType = TransType.SourceFile;
+          } else {
+            transType = TransType.TMT;
+          }
 
-      Logger.info(
-        `结束${getCmdNames(cmdConf)}词条
+          const tranResult = await translate(
+            i18nConf.parsedLanguages as string[],
+            i18nConf,
+            transType,
+          );
+          countActionResult('translate', tranResult, humanStatistics);
+        }
+
+        if (cmdConf.count) {
+          countTranslation(i18nConf.parsedLanguages as string[], i18nConf);
+        }
+
+        const end = process.hrtime.bigint();
+
+        Logger.info(
+          `【结束】- ${getCmdNames(cmdConf)}词条
 耗时：${(end - start) / 1000000n}ms，详情如下`,
-      );
-      console.table(humanStatistics);
-    } else {
-      Logger.warning('【该目录下不存在指定文件】请检查路径');
+        );
+        console.table(humanStatistics);
+      } else {
+        Logger.warning('【该目录下不存在指定文件】请检查路径');
+      }
+    } catch (ex) {
+      console.error(ex);
     }
   });
 };
