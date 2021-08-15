@@ -1,0 +1,30 @@
+{
+  "StringLiteral": {
+    "【全中文】const word = '武强' => const word = t('武强');": {
+      "input": "const word = '武强'",
+      "output": "const word = t('武强');"
+    },
+    "【没有中文】const word = 'wuqiang' => const word = 'wuqiang';": {
+      "input": "const word = 'wuqiang'",
+      "output": "const word = 'wuqiang';"
+    },
+    "【中英混合】const word = 'wu武强qiang' => const word = t('wu武强qiang');": {
+      "input": "const word = 'wu武强qiang'",
+      "output": "const word = t('wu武强qiang');"
+    }
+  },
+  "JSXText": {
+    "【全中文】<div>武强</div> => <div>{t('武强')}</div>;": {
+      "input": "<div>武强</div>",
+      "output": "<div>{t('武强')}</div>;"
+    },
+    "【没有中文】<div>wuqiang</div> => <div>wuqiang</div>;": {
+      "input": "<div>wuqiang</div>",
+      "output": "<div>wuqiang</div>;"
+    },
+    "【中英混合】<div>wu武强qiang</div> => <div>{t('wu武强qiang')}</div>;": {
+      "input": "<div>wu武强qiang</div>",
+      "output": "<div>{t('wu武强qiang')}</div>;"
+    }
+  }
+}
