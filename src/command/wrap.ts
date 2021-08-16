@@ -43,7 +43,7 @@ const generateFile = (
 const wrap = (
   files: string[],
   i18nConf: iI18nConf,
-  cmdConf: iCmd,
+  cmdConf: Partial<iCmd>,
 ): iWrapResult => {
   const wrapResult: iWrapResult = { wrapInfo: { WRAP_FILE: 0 } };
 

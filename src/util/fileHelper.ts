@@ -84,15 +84,21 @@ const isI18nConfExited = (): boolean => {
  * 读取 i18n 配置文件
  * @returns i18n 配置对象
  */
-const parseI18nConf = (): iI18nConf | null => {
+const parseI18nConf = (
+  filePath: string | undefined,
+  language: string | undefined,
+): iI18nConf | null => {
   const configFileName = path.resolve(I18N_CONFIGURATION_FILE_NAME);
 
   if (isI18nConfExited()) {
     const i18nConf: iI18nConf = fse.readJSONSync(configFileName);
     const importArray = i18nConf.importStr.split(' ');
+    const specifiedPath = filePath || i18nConf.srcPath;
+    const specifiedLanguage = language || i18nConf.languages;
 
     i18nConf.parsedExclude = i18nConf.exclude.split(',');
-    i18nConf.parsedLanguages = i18nConf.languages.split(',');
+    i18nConf.parsedLanguages = specifiedLanguage.split(',');
+    i18nConf.parsedPath = specifiedPath;
     i18nConf.parsedImportKey = importArray[importArray.length - 1];
 
     return i18nConf;
