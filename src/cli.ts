@@ -6,24 +6,36 @@ import { program } from 'commander';
 import Logger from './util/logger';
 import { generateConfiguration, parseI18nConf } from './util/fileHelper';
 import doScan from './command/scan';
-import { countTranslation } from './command/count';
-import translate from './command/translate';
-import pkg from '../package.json';
 import { iCmd, iTranType, TransType } from './types';
+import pkg from '../package.json';
 
-function scan(filePath: string | undefined, cmdConf: iCmd) {
-  const i18nConf = parseI18nConf();
+function scan(
+  filePath: string | undefined,
+  language: string | undefined,
+  cmdConf: Partial<iCmd>,
+) {
+  const i18nConf = parseI18nConf(filePath, language);
   if (i18nConf) {
-    const specifiedPath = filePath || i18nConf.srcPath;
-    if (specifiedPath) {
-      const absolutePath = path.resolve(specifiedPath);
+    if (cmdConf.wrap || cmdConf.extract) {
+      // 包裹 & 提取词条必须要要有路径
+      if (i18nConf.parsedPath) {
+        // const absolutePath = path.resolve(i18nConf.parsedPath);
+        i18nConf.parsedPath = path.resolve(i18nConf.parsedPath);
 
-      doScan(absolutePath, i18nConf, cmdConf);
+        doScan(i18nConf, cmdConf);
+      } else {
+        Logger.error(
+          '【路径错误】请检查命令指定路径 或 i18n.config.json 中【srcPath】配置',
+        );
+        Logger.error(`当前获取路径为：${i18nConf.parsedPath}`);
+      }
+    } else if (i18nConf.parsedLanguages) {
+      doScan(i18nConf, cmdConf);
     } else {
       Logger.error(
-        '【路径错误】请检查命令行【we】后的路径 或 i18n.config.json 中【srcPath】配置',
+        '【语言错误】请检查命令指定语言 或 i18n.config.json 中【languages】配置',
       );
-      Logger.error(`当前获取路径为：${specifiedPath}`);
+      Logger.error(`当前获取路径为：${i18nConf.parsedLanguages}`);
     }
   }
 }
@@ -43,43 +55,32 @@ function init() {
   program
     .command('scan [filePath]')
     .description('包裹 & 提取 & 自动翻译 & 统计翻译情况')
+    .option('-l, --language [language]', '指定语言')
     .option('-w, --wrap', '包裹词条')
     .option('-e, --extract', '提取词条')
     .option('-t, --translateSource', '从源文件翻译')
     .option('-tm, --translateMachine', '机器翻译')
     .option('-c, --count', '统计翻译情况')
-    .action(async (filePath: undefined | string, cmdObj: iCmd) => {
-      scan(filePath, cmdObj);
+    .option('-f, --file [file]', '统计翻译情况')
+    .action((filePath: undefined | string, options) => {
+      const { language, ...cmdObj } = options;
+      scan(filePath, language, cmdObj);
     });
 
   program
     .command('wrap [filePath]')
     .description('包裹词条')
     .action((filePath: string | undefined) => {
-      const cmdConf: iCmd = {
-        wrap: true,
-        extract: false,
-        translateMachine: false,
-        translateSource: false,
-        count: false,
-      };
-
-      scan(filePath, cmdConf);
+      scan(filePath, undefined, { wrap: true });
     });
 
   program
     .command('extract [filePath]')
     .description('提取词条')
-    .action((filePath: string | undefined) => {
-      const cmdConf: iCmd = {
-        wrap: false,
-        extract: true,
-        translateMachine: false,
-        translateSource: false,
-        count: false,
-      };
-
-      scan(filePath, cmdConf);
+    .option('-l, --language [language]', '指定语言')
+    .action((filePath: string | undefined, options) => {
+      const { language } = options;
+      scan(filePath, language, { extract: true });
     });
 
   program
@@ -87,28 +88,18 @@ function init() {
     .option('-m, --machine', '机器翻译')
     .description('自动翻译')
     .action((language: string | undefined, tansType: iTranType) => {
-      const i18nConf = parseI18nConf();
+      const cmdConf = tansType.machine
+        ? { translateMachine: true }
+        : { translateSource: true };
 
-      if (i18nConf) {
-        const languages = language || i18nConf.languages;
-        if (tansType.machine) {
-          translate(languages, i18nConf, TransType.TMT);
-        } else {
-          translate(languages, i18nConf, TransType.SourceFile);
-        }
-      }
+      scan(undefined, language, cmdConf);
     });
 
   program
     .command('count [language]')
     .description('统计翻译情况')
     .action((language: string | undefined) => {
-      const i18nConf = parseI18nConf();
-      if (i18nConf) {
-        const languages = language || i18nConf.languages;
-
-        countTranslation(languages, i18nConf);
-      }
+      scan(undefined, language, { count: true });
     });
 
   program

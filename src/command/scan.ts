@@ -8,7 +8,7 @@ import { getMatchedFiles } from '../util/fileHelper';
 import Logger from '../util/logger';
 import { iI18nConf, iCmd, TransType, iWordInfo } from '../types';
 
-const getCmdNames = (cmdConf: iCmd) => {
+const getCmdNames = (cmdConf: Partial<iCmd>) => {
   const cmdObj = {
     wrap: '【包裹】',
     extract: '【提取】',
@@ -29,52 +29,54 @@ const getCmdNames = (cmdConf: iCmd) => {
 
 /**
  * 根据命令包裹，提取，翻译，统计词条
- * @param filePath 需要包裹词条路径
  * @param i18nConfig i18n配置
  * @param cmdConf 命令配置
  */
-const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
+const scan = async (
+  i18nConf: iI18nConf,
+  cmdConf: Partial<iCmd>,
+): Promise<void> => {
   // 一个参数都不填
   if (Object.values(cmdConf).every((value) => !value)) {
-    Logger.error('【参数错误】请检scan后的参数 e.g i18n-helper scan -wetc');
+    Logger.error('【参数错误】请检命令后的参数');
     return;
   }
 
-  fs.stat(filePath, async (err, stat): Promise<void> => {
-    if (err) {
-      Logger.error('【路径错误】，请检查路径');
-      Logger.error(err.message);
-      return;
-    }
+  const {
+    wrap: isWrap,
+    extract: isExtract,
+    translateSource: isTranslateSource,
+    translateMachine: isTranslateMachine,
+    count: isCount,
+  } = cmdConf;
 
-    const files = getMatchedFiles(filePath, stat, i18nConf);
+  Logger.info(`【开始】- ${getCmdNames(cmdConf)}词条`);
+  const start = process.hrtime.bigint();
+  const humanStatistics: any = {};
 
-    try {
+  try {
+    if (isWrap || isExtract) {
+      // 包裹还是提取词条都需要，因为要做语法树分析
+      const filePath = i18nConf.parsedPath as string;
+      const stat = fs.statSync(filePath);
+
+      const files = getMatchedFiles(filePath, stat, i18nConf);
+
       const fileCount = files.length;
-      if (files.length > 0) {
-        Logger.info(
-          `【开始】- 本次符合条件文件的共${fileCount}个 ${getCmdNames(
-            cmdConf,
-          )}词条`,
-        );
-
-        const start = process.hrtime.bigint();
-        const humanStatistics: any = {};
+      Logger.info(`本次需扫描文件【${fileCount}】个`);
+      if (fileCount > 0) {
         let originalScanWordInfoList: iWordInfo[][] = [];
 
-        // 包裹还是提取词条都需要，因为要做语法树分析
-        if (cmdConf.wrap || cmdConf.extract) {
-          const wrapResult = wrap(files, i18nConf, cmdConf);
-          originalScanWordInfoList =
-            wrapResult.originalScanWordInfoLit as iWordInfo[][];
-          const { wrapInfo } = wrapResult;
+        const wrapResult = wrap(files, i18nConf, cmdConf);
+        originalScanWordInfoList =
+          wrapResult.originalScanWordInfoLit as iWordInfo[][];
+        const { wrapInfo } = wrapResult;
 
-          if (cmdConf.wrap) {
-            countActionResult('wrap', wrapInfo, humanStatistics);
-          }
+        if (isWrap) {
+          countActionResult('wrap', wrapInfo, humanStatistics);
         }
 
-        if (originalScanWordInfoList.length > 0 && cmdConf.extract) {
+        if (originalScanWordInfoList.length > 0 && isExtract) {
           const extractResult = extractWording(
             originalScanWordInfoList,
             i18nConf,
@@ -82,41 +84,43 @@ const scan = (filePath: string, i18nConf: iI18nConf, cmdConf: iCmd): void => {
 
           countActionResult('extract', extractResult, humanStatistics);
         }
-
-        if (cmdConf.translateSource || cmdConf.translateMachine) {
-          let transType;
-          if (cmdConf.translateSource) {
-            transType = TransType.SourceFile;
-          } else {
-            transType = TransType.TMT;
-          }
-
-          const tranResult = await translate(
-            i18nConf.parsedLanguages as string[],
-            i18nConf,
-            transType,
-          );
-          countActionResult('translate', tranResult, humanStatistics);
-        }
-
-        if (cmdConf.count) {
-          countTranslation(i18nConf.parsedLanguages as string[], i18nConf);
-        }
-
-        const end = process.hrtime.bigint();
-
-        Logger.info(
-          `【结束】- ${getCmdNames(cmdConf)}词条
-耗时：${(end - start) / 1000000n}ms，详情如下`,
-        );
-        console.table(humanStatistics);
       } else {
         Logger.warning('【该目录下不存在指定文件】请检查路径');
       }
-    } catch (ex) {
-      console.error(ex);
     }
-  });
+
+    if (isTranslateSource || isTranslateMachine) {
+      let transType;
+      if (isTranslateSource) {
+        transType = TransType.SourceFile;
+      } else {
+        transType = TransType.TMT;
+      }
+
+      const tranResult = await translate(
+        i18nConf.parsedLanguages as string[],
+        i18nConf,
+        transType,
+      );
+      countActionResult('translate', tranResult, humanStatistics);
+    }
+
+    if (isCount) {
+      countTranslation(i18nConf.parsedLanguages as string[], i18nConf);
+    }
+
+    const end = process.hrtime.bigint();
+    Logger.info(
+      `【结束】- ${getCmdNames(cmdConf)}词条
+  耗时：${(end - start) / 1000000n}ms，详情如下`,
+    );
+
+    if (Object.keys(humanStatistics).length > 0) {
+      console.table(humanStatistics);
+    }
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 export default scan;

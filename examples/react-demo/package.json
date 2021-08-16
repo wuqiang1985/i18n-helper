@@ -41,6 +41,6 @@
     ]
   },
   "devDependencies": {
-    "i18n-helper-cli": "^0.1.0"
+    "i18n-helper-cli": "^0.1.1"
   }
 }

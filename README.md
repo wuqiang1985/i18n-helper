@@ -1,5 +1,19 @@
 # i18n-helper-cli · ![NPM](https://img.shields.io/github/license/wuqiang1985/i18n-helper) ![npm](https://img.shields.io/npm/dy/i18n-helper) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
+- [What is i18n-helper-cli](#what-is-i18n-helper-cli)
+- [Why do we need i18n-helper-cli](#why-do-we-need-i18n-helper-cli)
+  - [Web 国际化流程](#web-国际化流程)
+  - [问题](#问题)
+  - [解决方案 & 原理](#解决方案--原理)
+- [How to use i18n-helper-cli](#how-to-use-i18n-helper-cli)
+  - [使用方法](#使用方法)
+    - [安装](#安装)
+    - [快捷使用](#快捷使用)
+    - [命令详情](#命令详情)
+    - [配置详情](#配置详情)
+- [Roadmap](#roadmap)
+- [Other](#other)
+
 ## What is i18n-helper-cli
 
 i18n-helper-cli 是一个 Web 国际化整体解决方案，包含自动`包裹词条`，`提取词条`， `翻译词条`，`词条翻译统计`，`节省人力预估统计`，`网页多语言显示异常检测`（Coming soon）等功能。可以大大减低开发，测试，翻译各个角色的人力成本，减少重复劳动，低级错误。
@@ -92,26 +106,29 @@ i18n-helper scan -wetc
 ```shell
 # 包裹 & 提取 & 翻译 & 统计 i18n.config.json 中 srcPath 文件中的中文词条
 # w:wrap e:extract t:translate tm: translate machine c:count
+# l:language
 # 这 5 个操作可以随意组合 e.g. i18n-helper scan -we 则只会翻译 & 提取
 i18n-helper scan -wetc
 i18n-helper scan -we -tm -c
-# 包裹 & 提取 & 翻译 & 统计 指定路径或文件内符合规则的词条
-i18n-helper scan -wetc [path|filename]
-i18n-helper scan -we -tm -c [path|filename]
+# 包裹 & 提取 & 翻译 & 统计 指定路径，指定语言内符合规则的词条
+# e.g i18n-helper scan -wetc -l en ./src/test/index.js
+i18n-helper scan -wetc -l [language] [filepath]
+i18n-helper scan -we -tm -c -l [language] [filepath]
 
 # 包裹 i18n.config.json 中 srcPath 文件中的中文词条
 i18n-helper wrap
-i18n-helper scan -t
+i18n-helper scan -w
 # 包裹指定文件中的中文词条
-i18n-helper wrap [path|filename]
-i18n-helper scan -t [path|filename]
+i18n-helper wrap [filepath]
+i18n-helper scan -w [filepath]
 
-# 提取 i18n.config.json 中 srcPath 文件中的中文词条
+# 提取 i18n.config.json 中 srcPath 文件中的中文词条到所有配置语言文件
 i18n-helper extract
 i18n-helper scan -e
-# 提取指定文件中的中文词条
-i18n-helper extract [path|filename]
-i18n-helper scan -e [path|filename]
+# 提取指定文件中文词条到指定语言文件
+# e.g i18n-helper extract -l en ./src/test/index.js
+i18n-helper extract -l [language] [filepath]
+i18n-helper scan -e -l [language] [filepath]
 
 # 翻译 i18n.config.json 中配置翻译文件词条， -m 腾讯翻译君机器翻译
 # 从翻译源文件文件中翻译
@@ -123,14 +140,17 @@ i18n-helper scan -tm
 # 翻译指定语言
 # 从翻译源文件文件中翻译
 i18n-helper translate [language]
+i18n-helper scan -t -l [language]
 # 腾讯翻译君自动翻译指定语言文件
 i18n-helper translate -m [language]
+i18n-helper scan -tm -l [language]
 
 # 统计 i18n.config.json 中翻译文件的翻译情况
 i18n-helper count
 i18n-helper scan -c
 # 统计指定语言翻译文件的翻译情况，多个语言用,分隔
 i18n-helper count [language]
+i18n-helper scan -c -l [language]
 ```
 
 #### 配置详情

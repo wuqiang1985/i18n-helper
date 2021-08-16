@@ -1,15 +1,13 @@
 {
   "name": "i18n-helper-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "i18n 命令行工具。一键包裹，提取，翻译，统计。支持网页截图，翻译词条检测",
   "main": ".src/cli.js",
   "scripts": {
     "test": "jest --verbose ./src/test",
     "prepare": "husky install",
     "pre-commit": "lint-staged",
-    "build": "tsc",
-    "copy": "cp ./README.md ./dist ",
-    "npm-publish": "rimraf ./dist && npm run build && npm run copy && cd ./dist && npm publish"
+    "build": "rimraf ./dist && tsc && cp ./README.md ./dist"
   },
   "repository": {
     "type": "git",
