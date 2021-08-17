@@ -54,7 +54,7 @@ const countTranslation = (
   languages: string | string[],
   i18nConf: iI18nConf,
 ): void => {
-  const { localeDir, transFileName, transFileExt } = i18nConf;
+  const { localeDir, transFileName, transFileExt, sourceLanguage } = i18nConf;
   const translationStatistics: any = {};
   const transFileMissed: string[] = [];
   const curLanguages =
@@ -70,13 +70,15 @@ const countTranslation = (
 
     if (isTransFilesExited) {
       const translation = fse.readJSONSync(transFile, { throws: false }) || {};
+      const displayLanguage =
+        lang === sourceLanguage ? `${lang} (source)` : lang;
 
       const totalKeyCount = Object.keys(translation).length;
       const unTranslatedCount = Object.values(translation).filter(
         (val) => val === '',
       ).length;
 
-      translationStatistics[lang] = {
+      translationStatistics[displayLanguage] = {
         总词条数: totalKeyCount,
         未翻译词条数: unTranslatedCount,
         未翻译比例: `${((unTranslatedCount / totalKeyCount) * 100).toFixed(

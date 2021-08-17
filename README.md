@@ -1,18 +1,19 @@
 # i18n-helper-cli · ![NPM](https://img.shields.io/github/license/wuqiang1985/i18n-helper) ![npm](https://img.shields.io/npm/dy/i18n-helper) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-- [What is i18n-helper-cli](#what-is-i18n-helper-cli)
-- [Why do we need i18n-helper-cli](#why-do-we-need-i18n-helper-cli)
-  - [Web 国际化流程](#web-国际化流程)
-  - [问题](#问题)
-  - [解决方案 & 原理](#解决方案--原理)
-- [How to use i18n-helper-cli](#how-to-use-i18n-helper-cli)
-  - [实例](#实例)
-  - [安装](#安装)
-  - [快捷使用](#快捷使用)
-  - [命令详情](#命令详情)
-  - [配置详情](#配置详情)
-- [Roadmap](#roadmap)
-- [Other](#other)
+- [i18n-helper-cli · !NPM ![npm](https://img.shields.io/npm/dy/i18n-helper) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)](#i18n-helper-cli----)
+  - [What is i18n-helper-cli](#what-is-i18n-helper-cli)
+  - [Why do we need i18n-helper-cli](#why-do-we-need-i18n-helper-cli)
+    - [Web 国际化流程](#web-国际化流程)
+    - [问题](#问题)
+    - [解决方案 & 原理](#解决方案--原理)
+  - [How to use i18n-helper-cli](#how-to-use-i18n-helper-cli)
+    - [实例](#实例)
+    - [安装](#安装)
+    - [快捷使用](#快捷使用)
+    - [命令详情](#命令详情)
+    - [配置详情](#配置详情)
+  - [Roadmap](#roadmap)
+  - [Other](#other)
 
 ## What is i18n-helper-cli
 
@@ -75,6 +76,8 @@ i18n-helper-cli 可以很好的解决上述问题。
 [请参考 example](./examples/react-demo/README.md)
 
 ### 安装
+
+**请确保 Nodejs 版本大于 14**
 
 ```shell
 # npm 安装

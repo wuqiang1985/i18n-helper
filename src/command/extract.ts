@@ -32,15 +32,17 @@ const getScannedUniqueKeys = (originalScannedWordInfo: any[]) => {
 };
 
 /**
- *
- * @param lang 语言
+ * 写入词条到翻译文件
+ * @param targetLang 目标语言
+ * @param sourceLang 源语言
  * @param transFile 翻译文件
  * @param AUWordings 变化的词条
  * @param extractResult 翻译结果
  * @param existObj 翻译文件存量词条
  */
 const fillTransFile = (
-  lang: string,
+  targetLang: string,
+  sourceLang: string,
   transFile: string,
   AUWordings: string[],
   extractResult: iExtractResult,
@@ -48,11 +50,12 @@ const fillTransFile = (
 ) => {
   let extractWordingCount = 0;
   let newTransObj;
+
   if (AUWordings.length > 0) {
     // 词条新增或修改词条对象
     const AUObj: iTransObj = {};
     AUWordings.map((key) => {
-      AUObj[key] = '';
+      AUObj[key] = targetLang === sourceLang ? key : '';
       extractWordingCount += 1;
     });
 
@@ -61,12 +64,12 @@ const fillTransFile = (
     } else {
       newTransObj = AUObj;
     }
-    extractResult[lang] = extractWordingCount;
+    extractResult[targetLang] = extractWordingCount;
 
     fse.outputFileSync(transFile, formatJSON(newTransObj));
-    Logger.success(`【提取】【${lang}】词条提取已完成！`);
+    Logger.success(`【提取】【${targetLang}】词条提取已完成！`);
   } else {
-    Logger.warning(`【提取】【${lang}】本次无词条变动！`);
+    Logger.warning(`【提取】【${targetLang}】本次无词条变动！`);
   }
 };
 
@@ -107,7 +110,14 @@ const extractWording = (
       // 新增和修改的词条
       const AUWordings = _.difference(scannedWordings, existWording);
 
-      fillTransFile(lang, transFile, AUWordings, extractResult, existObj);
+      fillTransFile(
+        lang,
+        sourceLanguage,
+        transFile,
+        AUWordings,
+        extractResult,
+        existObj,
+      );
     } else {
       // 翻译文件不存在，新建翻译文件，写入【新增】 key: ''
       let sourceTransKeys: string[] = [];
@@ -124,6 +134,7 @@ const extractWording = (
 
       fillTransFile(
         lang,
+        sourceLanguage,
         transFile,
         _.uniq([...sourceTransKeys, ...scannedWordings]),
         extractResult,
