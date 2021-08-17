@@ -14,6 +14,7 @@ export interface iI18nConf {
   projectType: string;
   srcPath: string;
   fileExt: string;
+  wrapCharacter: string;
   wrapperFuncName: string;
   excludeWrapperFuncName: string;
   jsx2Trans: boolean;

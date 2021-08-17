@@ -1,4 +1,10 @@
 const isChinese = (val: string): boolean => /[\u4e00-\u9fa5]/.test(val);
+
+const needWrap = (regex: string, val: string): boolean => {
+  const reg = new RegExp(regex);
+
+  return reg.test(val);
+};
 const formatJSON = (val: any): string => JSON.stringify(val, null, 2);
 
 const formatSeconds = (seconds: number): string => {
@@ -23,4 +29,4 @@ const formatSeconds = (seconds: number): string => {
   return `${ss}秒`;
 };
 
-export { isChinese, formatJSON };
+export { isChinese, formatJSON, needWrap };

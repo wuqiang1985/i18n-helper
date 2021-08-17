@@ -1,16 +1,15 @@
 import type * as tt from '@babel/types';
 import type { NodePath } from '@babel/traverse';
 
-import { replace } from 'lodash';
 import Logger from '../util/logger';
-import { isChinese } from '../util/helper';
+import { needWrap } from '../util/helper';
 import { iTransInfo, iI18nConf, iWordInfo } from '../types';
 
 type TLQuasisExpressions = (tt.TemplateElement | tt.Expression | tt.TSType)[];
 
 const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
   const JSX_WRAPPER = 'trans';
-  const T_WRAPPER = i18nConf.wrapperFuncName;
+  const { wrapCharacter, wrapperFuncName: T_WRAPPER } = i18nConf;
 
   /**
    * 获取 MemberExpression 完整名字
@@ -72,7 +71,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
           let { value } = path.node;
           value = replaceLineBreak(value);
 
-          if (isChinese(value)) {
+          if (needWrap(wrapCharacter, value)) {
             // console.log(`string直接用 replaceLineBreak value：${value}`);
             let newNode = t.CallExpression(t.Identifier(T_WRAPPER), [
               combine(value),
@@ -96,7 +95,11 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
 
         TemplateLiteral(path: NodePath<tt.TemplateLiteral>) {
           // 全部不包含中文词条则不处理
-          if (path.node.quasis.every((word) => !isChinese(word.value.raw))) {
+          if (
+            path.node.quasis.every(
+              (word) => !needWrap(wrapCharacter, word.value.raw),
+            )
+          ) {
             return;
           }
 
@@ -277,8 +280,8 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
 
           // jsx内部文字包含中文且不被<trans></trans>包裹
           if (
-            isChinese(value)
-            // isChinese(value) &&
+            needWrap(wrapCharacter, value)
+            // needWrap(value) &&
             // (
             //   (path.parentPath.node as tt.JSXElement).openingElement
             //     .name as tt.JSXIdentifier
