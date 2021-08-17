@@ -12,6 +12,22 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
   const JSX_WRAPPER = 'trans';
   const T_WRAPPER = i18nConf.wrapperFuncName;
 
+  /**
+   * 获取 MemberExpression 完整名字
+   * @param ME MemberExpression
+   * @param names Array
+   */
+  const getName = (ME: tt.MemberExpression, names: string[]) => {
+    let { property } = ME;
+    const { object } = ME;
+    property = property as tt.Identifier;
+    names.push(property.name);
+    if (object.type === 'MemberExpression') {
+      getName(object, names);
+    } else if (object.type === 'Identifier') {
+      names.push((object as tt.Identifier).name);
+    }
+  };
   const plugin = ({ types: t }: { types: any }) => {
     const combine = (value: string) =>
       Object.assign(t.StringLiteral(value), {
@@ -299,27 +315,46 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
         },
 
         CallExpression(path: NodePath<tt.CallExpression>) {
-          // 跳过 t 函数，但包裹的词条要提取出来，否则这里的词条修改后无法识别
-          const { type, name } = path.node.callee as tt.Identifier;
-          if (type === 'Identifier' && name === T_WRAPPER) {
-            path.node.arguments
-              .filter((arg) => arg.type === 'StringLiteral')
-              .map((sl) => {
-                const node = sl as tt.StringLiteral;
-                collectWordingInfo(
-                  node.value.trim(),
-                  path as NodePath,
-                  this,
-                  transInfo.wordInfoArray,
-                );
-              });
-            path.skip();
+          switch (path.node.callee.type) {
+            // TODO: 这里目前只能处理 Identifier 方法，后续需要修改
+            case 'Identifier': {
+              const { name } = path.node.callee as tt.Identifier;
+              if (name === T_WRAPPER) {
+                path.node.arguments
+                  .filter((arg) => arg.type === 'StringLiteral')
+                  .map((sl) => {
+                    const node = sl as tt.StringLiteral;
+                    collectWordingInfo(
+                      node.value.trim(),
+                      path as NodePath,
+                      this,
+                      transInfo.wordInfoArray,
+                    );
+                  });
+                path.skip();
+              }
+              break;
+            }
+            case 'MemberExpression': {
+              const excludeFuncName = i18nConf.parsedExcludeWrapperFuncName;
+              if (excludeFuncName.length > 0) {
+                const names: string[] = [];
+                const me = path.node.callee as tt.MemberExpression;
+                getName(me, names);
+                const MEName = names.reverse().join('.');
+                if (excludeFuncName.includes(MEName)) {
+                  path.skip();
+                }
+              }
+              break;
+            }
+            default:
+              break;
           }
         },
 
         ImportDeclaration(path: NodePath<tt.ImportDeclaration>) {
-          const { node } = path;
-          if (node.source.value === i18nConf.parsedImportKey) {
+          if (path.node.source.extra?.raw === i18nConf.parsedImportKey) {
             transInfo.needImport = false;
           }
         },

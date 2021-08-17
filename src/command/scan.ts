@@ -76,7 +76,7 @@ const scan = async (
           countActionResult('wrap', wrapInfo, humanStatistics);
         }
 
-        if (originalScanWordInfoList.length > 0 && isExtract) {
+        if (originalScanWordInfoList?.length > 0 && isExtract) {
           const extractResult = extractWording(
             originalScanWordInfoList,
             i18nConf,

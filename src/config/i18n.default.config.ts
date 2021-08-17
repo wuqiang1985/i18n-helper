@@ -7,6 +7,8 @@ module.exports = {
   fileExt: 'js,jsx,ts,tsx',
   // 包裹词条的名字
   wrapperFuncName: 't',
+  // 忽略掉包裹的方法，多个用,分隔
+  excludeWrapperFuncName: 'console.log,console.error',
   // jsx中的文字包裹方式，true用<trans></trans>， false用【wrapperFuncName】的value包裹
   jsx2Trans: false,
   // 当文件需要翻译时引入的文件

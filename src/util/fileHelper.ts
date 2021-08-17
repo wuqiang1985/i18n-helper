@@ -99,7 +99,12 @@ const parseI18nConf = (
     i18nConf.parsedExclude = i18nConf.exclude.split(',');
     i18nConf.parsedLanguages = specifiedLanguage.split(',');
     i18nConf.parsedPath = specifiedPath;
-    i18nConf.parsedImportKey = importArray[importArray.length - 1];
+    i18nConf.parsedImportKey = importArray[importArray.length - 1].replace(
+      '\n',
+      '',
+    );
+    i18nConf.parsedExcludeWrapperFuncName =
+      i18nConf.excludeWrapperFuncName.split(',');
 
     return i18nConf;
   }

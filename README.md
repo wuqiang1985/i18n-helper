@@ -1,19 +1,18 @@
 # i18n-helper-cli · ![NPM](https://img.shields.io/github/license/wuqiang1985/i18n-helper) ![npm](https://img.shields.io/npm/dy/i18n-helper) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-- [i18n-helper-cli · !NPM ![npm](https://img.shields.io/npm/dy/i18n-helper) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)](#i18n-helper-cli----)
-  - [What is i18n-helper-cli](#what-is-i18n-helper-cli)
-  - [Why do we need i18n-helper-cli](#why-do-we-need-i18n-helper-cli)
-    - [Web 国际化流程](#web-国际化流程)
-    - [问题](#问题)
-    - [解决方案 & 原理](#解决方案--原理)
-  - [How to use i18n-helper-cli](#how-to-use-i18n-helper-cli)
-    - [实例](#实例)
-    - [安装](#安装)
-    - [快捷使用](#快捷使用)
-    - [命令详情](#命令详情)
-    - [配置详情](#配置详情)
-  - [Roadmap](#roadmap)
-  - [Other](#other)
+- [What is i18n-helper-cli](#what-is-i18n-helper-cli)
+- [Why do we need i18n-helper-cli](#why-do-we-need-i18n-helper-cli)
+  - [Web 国际化流程](#web-国际化流程)
+  - [问题](#问题)
+  - [解决方案 & 原理](#解决方案--原理)
+- [How to use i18n-helper-cli](#how-to-use-i18n-helper-cli)
+  - [实例](#实例)
+  - [安装](#安装)
+  - [快捷使用](#快捷使用)
+  - [命令详情](#命令详情)
+  - [配置详情](#配置详情)
+- [Roadmap](#roadmap)
+- [Other](#other)
 
 ## What is i18n-helper-cli
 
@@ -168,6 +167,8 @@ module.exports = {
   fileExt: 'js,jsx,ts,tsx',
   // 包裹词条的名字
   wrapperFuncName: 't',
+  // 忽略掉包裹的方法，多个用,分隔
+  excludeWrapperFuncName: 'console.log',
   // jsx中的文字包裹方式，true用<trans></trans>， false用【wrapperFuncName】的value包裹
   jsx2Trans: false,
   // 当文件需要翻译时引入的文件

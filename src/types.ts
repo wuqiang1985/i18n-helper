@@ -15,6 +15,7 @@ export interface iI18nConf {
   srcPath: string;
   fileExt: string;
   wrapperFuncName: string;
+  excludeWrapperFuncName: string;
   jsx2Trans: boolean;
   importStr: string;
   exclude: string;
@@ -31,6 +32,7 @@ export interface iI18nConf {
   parsedLanguages?: string[];
   parsedPath?: string;
   parsedImportKey: string;
+  parsedExcludeWrapperFuncName: string[];
 }
 
 export interface iCmd {
