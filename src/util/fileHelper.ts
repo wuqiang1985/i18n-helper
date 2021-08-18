@@ -55,10 +55,13 @@ const getMatchedFiles = (
   if (stat.isFile()) {
     files.push(filePath);
   } else if (stat.isDirectory()) {
-    const pattern = `${filePath}/**/*.{${i18nConf.fileExt}}`;
+    const { fileExt } = i18nConf;
+    const ext = fileExt.includes(',') ? `{${fileExt}}` : fileExt;
+    const pattern = `${filePath}/**/*.${ext}`;
     const ignorePath = i18nConf.parsedExclude?.map((item) => {
       return `**/${item}/**`;
     });
+
     const option = {
       // ignore: ['**/node_modules/**', '**/.git/**', '**/dist/**'],
       ignore: ignorePath,
