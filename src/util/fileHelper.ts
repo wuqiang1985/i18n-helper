@@ -85,8 +85,8 @@ const isI18nConfExited = (): boolean => {
  * @returns i18n 配置对象
  */
 const parseI18nConf = (
-  filePath: string | undefined,
-  language: string | undefined,
+  filePath?: string | undefined,
+  language?: string | undefined,
 ): iI18nConf | null => {
   const configFileName = path.resolve(I18N_CONFIGURATION_FILE_NAME);
 

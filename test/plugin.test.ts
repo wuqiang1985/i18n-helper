@@ -2,9 +2,9 @@ import path from 'path';
 
 import { transformSync } from '@babel/core';
 
-import i18nPlugin from '../plugin/babelPlugin';
-import { parseI18nConf } from '../util/fileHelper';
-import { iI18nConf } from '../types';
+import i18nPlugin from '../src/plugin/babelPlugin';
+import { parseI18nConf } from '../src/util/fileHelper';
+import { iI18nConf } from '../src/types';
 import TestSuites from './plugin.testcase.json';
 
 let plugin: any;
@@ -19,6 +19,7 @@ beforeAll(() => {
   };
 
   const conf: iI18nConf = parseI18nConf() as iI18nConf;
+
   plugin = i18nPlugin(transInfo, conf);
 });
 

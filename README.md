@@ -1,25 +1,28 @@
-# i18n-helper-cli · ![NPM](https://img.shields.io/github/license/wuqiang1985/i18n-helper) ![npm](https://img.shields.io/npm/dy/i18n-helper) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+# i18n-helper-cli
 
-- [What is i18n-helper-cli](#what-is-i18n-helper-cli)
-- [Why do we need i18n-helper-cli](#why-do-we-need-i18n-helper-cli)
-  - [Web 国际化流程](#web-国际化流程)
-  - [问题](#问题)
-  - [解决方案 & 原理](#解决方案--原理)
-- [How to use i18n-helper-cli](#how-to-use-i18n-helper-cli)
-  - [实例](#实例)
-  - [安装](#安装)
-  - [快捷使用](#快捷使用)
-  - [命令详情](#命令详情)
-  - [配置详情](#配置详情)
-- [Roadmap](#roadmap)
-- [Other](#other)
+![NPM](https://img.shields.io/github/license/wuqiang1985/i18n-helper) ![npm](https://img.shields.io/npm/v/i18n-helper-cli)![node-current](https://img.shields.io/node/v/i18n-helper-cli) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-## What is i18n-helper-cli
+- [i18n-helper-cli](#i18n-helper-cli)
+  - [i18n-helper-cli 是什么](#i18n-helper-cli-是什么)
+  - [为什么要用 i18n-helper-cli](#为什么要用-i18n-helper-cli)
+    - [Web 国际化流程](#web-国际化流程)
+    - [问题](#问题)
+    - [解决方案 & 原理](#解决方案--原理)
+  - [如何使用 i18n-helper-cli](#如何使用-i18n-helper-cli)
+    - [实例](#实例)
+    - [安装](#安装)
+    - [快捷使用](#快捷使用)
+    - [命令详情](#命令详情)
+    - [配置详情](#配置详情)
+  - [未来规划](#未来规划)
+  - [其他](#其他)
+
+## i18n-helper-cli 是什么
 
 i18n-helper-cli 是一个 Web 国际化整体解决方案，包含自动`包裹词条`，`提取词条`， `翻译词条`，`词条翻译统计`，`节省人力预估统计`，`网页多语言显示异常检测`（Coming soon）等功能。可以大大减低开发，测试，翻译各个角色的人力成本，减少重复劳动，低级错误。
 ![i18n-helper-cli](https://user-images.githubusercontent.com/1751494/129152542-77d9ed28-5abd-4f98-8302-2c657d20019d.gif)
 
-## Why do we need i18n-helper-cli
+## 为什么要用 i18n-helper-cli
 
 ### Web 国际化流程
 
@@ -68,7 +71,7 @@ i18n-helper-cli 可以很好的解决上述问题。
   1. 翻译词条统计：根据当前语言下未翻译词条数 / 词条总数
   2. 减低人工耗时预估：根据包裹，提取，翻译词条数预估
 
-## How to use i18n-helper-cli
+## 如何使用 i18n-helper-cli
 
 ### 实例
 
@@ -198,7 +201,7 @@ module.exports = {
 };
 ```
 
-## Roadmap
+## 未来规划
 
 - [ ] 网页多语言显示异常检测
 - [ ] 丰富提取文件(po, csv, excel 等等)
@@ -206,7 +209,7 @@ module.exports = {
 - [ ] 词条提取 cleanMode，目前如果代码中没有这个词条了，提取后的文件依然会有
 - [ ] cli 国际化，配合自动翻译，应该会很快
 
-## Other
+## 其他
 
 目前还在完善中，欢迎大家试用，大家有问题可以提 issue。
 
