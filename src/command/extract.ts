@@ -4,6 +4,7 @@ import path from 'path';
 import _ from 'lodash';
 import fse from 'fs-extra';
 
+import { t } from '../i18n';
 import Logger from '../util/logger';
 import { formatJSON } from '../util/helper';
 import { iI18nConf, iExtractResult, iTransObj } from '../types';
@@ -27,10 +28,8 @@ const getScannedUniqueKeys = (originalScannedWordInfo: any[]) => {
   // }
   const groupedWordList = _.chain(wordList).groupBy('key').value();
   const scannedUniqueKeys = Object.keys(groupedWordList);
-
   return scannedUniqueKeys;
 };
-
 /**
  * 写入词条到翻译文件
  * @param targetLang 目标语言
@@ -64,15 +63,22 @@ const fillTransFile = (
     } else {
       newTransObj = AUObj;
     }
-    extractResult[targetLang] = extractWordingCount;
 
+    extractResult[targetLang] = extractWordingCount;
     fse.outputFileSync(transFile, formatJSON(newTransObj));
-    Logger.success(`【提取】【${targetLang}】词条提取已完成！`);
+    Logger.success(
+      t('【提取】【{{targetLang}}】词条提取已完成！', {
+        targetLang,
+      }),
+    );
   } else {
-    Logger.warning(`【提取】【${targetLang}】本次无词条变动！`);
+    Logger.warning(
+      t('【提取】【{{targetLang}}】本次无词条变动！', {
+        targetLang,
+      }),
+    );
   }
 };
-
 /**
  * 提取词条到翻译文件
  * @param originalScannedWordInfo 扫描后得到的词条信息
@@ -91,9 +97,7 @@ const extractWording = (
     parsedLanguages,
     sourceLanguage,
   } = i18nConf;
-
   const scannedWordings = getScannedUniqueKeys(originalScannedWordInfo);
-
   // 遍历翻译文件
   parsedLanguages?.map((lang) => {
     const transFile = `${path.resolve(
@@ -121,13 +125,13 @@ const extractWording = (
     } else {
       // 翻译文件不存在，新建翻译文件，写入【新增】 key: ''
       let sourceTransKeys: string[] = [];
-
       const sourceTransFile = `${path.resolve(
         localeDir,
         sourceLanguage,
         transFileName,
       )}.${transFileExt}`;
       const isSourceTransFilesExited = fs.existsSync(sourceTransFile);
+
       if (isSourceTransFilesExited) {
         sourceTransKeys = Object.keys(fse.readJSONSync(sourceTransFile));
       }
@@ -141,7 +145,6 @@ const extractWording = (
       );
     }
   });
-
   return extractResult;
 };
 

@@ -4,6 +4,7 @@ import fs from 'fs';
 import fse from 'fs-extra';
 import * as tencentCloud from 'tencentcloud-sdk-nodejs';
 
+import { t } from '../i18n';
 import Logger from '../util/logger';
 import { formatJSON } from '../util/helper';
 import { iI18nConf, TransType, iActionResult } from '../types';
@@ -35,9 +36,9 @@ const translateFromSourceFile = (
   if (isTargetTranslateFileExited) {
     const target =
       fse.readJSONSync(targetTranslateFile, { throws: false }) || {};
-
     unTranslateKeys.map((key) => {
       const transValue = typeof target[key] === 'undefined' ? '' : target[key];
+
       if (transValue) {
         transCount += 1;
       }
@@ -45,13 +46,18 @@ const translateFromSourceFile = (
       source[key] = transValue;
     });
   } else {
-    Logger.error(`【翻译错误】': 翻译文件${targetTranslateFile}不存在
-请检查命令行【translate】后的语言 或 i18n.config.json 中配置`);
+    Logger.error(
+      t(
+        '【翻译错误】翻译文件{{targetTranslateFile}}不存在 请检查命令行【translate】后的语言 或 i18n.config.json 中配置',
+        {
+          targetTranslateFile,
+        },
+      ),
+    );
   }
 
   return transCount;
 };
-
 /**
  * 机器翻译（腾讯翻译君）
  * @param targetLang 目标翻译语言
@@ -67,9 +73,13 @@ const translateFromTMT = async (
   source: Record<string, string>,
 ) => {
   const { secretId, secretKey } = i18nConf;
+
   if (!secretId && !secretKey) {
-    Logger.error(`【翻译错误】': secretId或secretKey不存在
-请检查i18n.config.json 中【secretId】或【secretKey】配置`);
+    Logger.error(
+      t(
+        '【翻译错误】secretId或secretKey不存在 请检查i18n.config.json 中【secretId】或【secretKey】配置',
+      ),
+    );
     return -1;
   }
 
@@ -85,19 +95,17 @@ const translateFromTMT = async (
     region: 'ap-shanghai',
     // 可选配置实例
     profile: {
-      signMethod: 'HmacSHA256', // 签名方法
+      signMethod: 'HmacSHA256',
       httpProfile: {
-        reqMethod: 'POST', // 请求方法
-        reqTimeout: 30, // 请求超时时间，默认60s
+        reqMethod: 'POST',
+        reqTimeout: 30,
       },
     },
   };
-
   // 实例化要请TMT的client对象
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const client = new TMTClient(clientConfig);
-
   const { TargetTextList } = await client.TextTranslateBatch({
     // 自动识别（识别为一种语言）
     Source: 'auto',
@@ -107,7 +115,6 @@ const translateFromTMT = async (
     // 待翻译词条
     SourceTextList: unTranslateKeys,
   });
-
   const transObj: Record<string, string> = {};
   if (TargetTextList) {
     for (let i = 0; i < unTranslateKeys.length; i += 1) {
@@ -124,10 +131,8 @@ const translateFromTMT = async (
 
     source[key] = transValue;
   });
-
   return transCount;
 };
-
 /**
  * 翻译词条
  * @param languages 目标翻译语言列表
@@ -143,12 +148,11 @@ const translate = async (
   const transResult: iActionResult = { TRANSLATE_FILE: 0 };
   const tranTypeWording =
     transType === TransType.SourceFile
-      ? '【翻译 - 从源文件翻译】'
-      : '【翻译 - TMT机器翻译】';
+      ? t('【翻译 - 从源文件翻译】')
+      : t('【翻译 - TMT机器翻译】');
   const { localeDir, transFileName, transFileExt } = i18nConf;
   const curLanguages =
     typeof languages === 'string' ? languages.split(',') : languages;
-
   await Promise.all(
     curLanguages.map(async (lang) => {
       // 翻译词条数
@@ -163,12 +167,10 @@ const translate = async (
 
       if (isTransFilesExited) {
         const source = fse.readJSONSync(transFile);
-
         const unTranslatedWord = Object.fromEntries(
           Object.entries(source).filter(([key, value]) => value === ''),
         );
         const unTransKeys = Object.keys(unTranslatedWord);
-
         // 有词条需要翻译
         if (unTransKeys.length > 0) {
           if (transType === TransType.SourceFile) {
@@ -186,25 +188,44 @@ const translate = async (
               source,
             );
           }
-
           // 翻译词条数大于 0
           if (transCount > 0) {
             transResult[lang] = transCount;
             fse.outputFileSync(transFile, formatJSON(source));
-            Logger.success(`${tranTypeWording}【${lang}】已完成！`);
+            Logger.success(
+              t('{{tranTypeWording}}【{{lang}}】已完成！', {
+                tranTypeWording,
+                lang,
+              }),
+            );
           } else if (transCount === 0) {
-            Logger.warning(`${tranTypeWording}【${lang}】本次无词条被翻译！`);
+            Logger.warning(
+              t('{{tranTypeWording}}【{{lang}}】本次无词条被翻译！', {
+                tranTypeWording,
+                lang,
+              }),
+            );
           }
         } else {
-          Logger.warning(`${tranTypeWording}【${lang}】本次没有词条需要翻译！`);
+          Logger.warning(
+            t('{{tranTypeWording}}【{{lang}}】本次没有词条需要翻译！', {
+              tranTypeWording,
+              lang,
+            }),
+          );
         }
       } else {
-        Logger.error(`【翻译错误】': 待翻译文件${transFile}不存在
-请检查命令行【translate】后的语言 或 i18n.config.json 中【languages】配置`);
+        Logger.error(
+          t(
+            '【翻译错误】待翻译文件{{transFile}}不存在 请检查命令行【translate】后的语言 或 i18n.config.json 中【languages】配置',
+            {
+              transFile,
+            },
+          ),
+        );
       }
     }),
   );
-
   return transResult;
 };
 

@@ -1,4 +1,6 @@
 module.exports = {
+  // cli 语言
+  cliLang: 'zh',
   // 项目类型：react | vue | js
   projectType: '[react]',
   // 默认包裹和提取词条的目录

@@ -1,6 +1,8 @@
 # i18n-helper-cli
 
-![NPM](https://img.shields.io/github/license/wuqiang1985/i18n-helper) ![npm](https://img.shields.io/npm/v/i18n-helper-cli)![node-current](https://img.shields.io/node/v/i18n-helper-cli) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+![NPM](https://img.shields.io/github/license/wuqiang1985/i18n-helper) ![npm](https://img.shields.io/npm/v/i18n-helper-cli) ![node-current](https://img.shields.io/node/v/i18n-helper-cli) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
+使用其他语言阅读：[English](./README_en.md) | 简体中文
 
 - [i18n-helper-cli](#i18n-helper-cli)
   - [i18n-helper-cli 是什么](#i18n-helper-cli-是什么)
@@ -106,6 +108,13 @@ i18n-helper init -y
 i18n-helper scan -wetc
 ```
 
+3. 切换 Cli 语言
+
+```shell
+# cli 默认为中文，支持语言切换，目前支持zh & en
+i18n-helper switch en
+```
+
 ### 命令详情
 
 ```shell
@@ -162,6 +171,8 @@ i18n-helper scan -c -l [language]
 
 ```javascript
 module.exports = {
+  // cli 语言
+  cliLang: 'zh',
   // 项目类型：react | vue | js
   projectType: '[react]',
   // 默认包裹和提取词条的目录
@@ -207,7 +218,6 @@ module.exports = {
 - [ ] 丰富提取文件(po, csv, excel 等等)
 - [ ] 增加 git 模式，针对当前改动的文件才转 AST 包裹，提取
 - [ ] 词条提取 cleanMode，目前如果代码中没有这个词条了，提取后的文件依然会有
-- [ ] cli 国际化，配合自动翻译，应该会很快
 
 ## 其他
 

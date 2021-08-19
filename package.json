@@ -7,8 +7,8 @@
     "test": "jest --verbose ./test",
     "prepare": "husky install",
     "pre-commit": "lint-staged",
-    "build": "rimraf ./dist && tsc && cp ./README.md ./dist",
-    "i18n": "ts-node ./src/cli.ts scan -we"
+    "build": "rm -rf ./dist && tsc && cp ./*.md ./dist && cp -r ./src/locales ./dist/src",
+    "i18n": "ts-node ./src/cli.ts scan -wetc"
   },
   "repository": {
     "type": "git",

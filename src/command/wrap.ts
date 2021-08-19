@@ -3,6 +3,7 @@ import fs from 'fs';
 import { transformFileSync } from '@babel/core';
 import prettier from 'prettier';
 
+import { t } from '../i18n';
 import i18nPlugin from '../plugin/babelPlugin';
 import Logger from '../util/logger';
 import { iTransInfo, iWordInfo, iI18nConf, iCmd, iWrapResult } from '../types';
@@ -26,6 +27,8 @@ const generateFile = (
   if (transInfo.needImport) {
     code = `${i18nConf.importStr}${code}`;
   }
+
+  // TODO: 这里有时候会出问题，晚点看看
   code = prettier.format(code, {
     parser: 'babel',
     singleQuote: true,
@@ -33,7 +36,6 @@ const generateFile = (
 
   fs.writeFileSync(filename, code, 'utf8');
 };
-
 /**
  * 包裹词条
  * @param files 需要执行包裹词条的文件
@@ -46,7 +48,6 @@ const wrap = (
   cmdConf: Partial<iCmd>,
 ): iWrapResult => {
   const wrapResult: iWrapResult = { wrapInfo: { WRAP_FILE: 0 } };
-
   files.forEach((filename) => {
     const transInfo: iTransInfo = {
       needT: false,
@@ -68,7 +69,6 @@ const wrap = (
     if (transResult) {
       const code = transResult.code as string;
       const needTranslate = transInfo.needT || transInfo.needTrans;
-
       // wordInfoArray 包含2个部分
       // 1. 未被包裹的中文词条
       // 2. 被 t 包裹后的 中文词条 (不包含这部分的话在包裹后无法提取词条)
@@ -88,9 +88,9 @@ const wrap = (
   });
 
   if (generateFileCount > 0) {
-    Logger.success('【包裹】词条包裹已完成！');
+    Logger.success(t('【包裹】词条包裹已完成！'));
   } else if (cmdConf.wrap) {
-    Logger.warning('【包裹】本次无词条被包裹！');
+    Logger.warning(t('【包裹】本次无词条被包裹！'));
   }
 
   return wrapResult;

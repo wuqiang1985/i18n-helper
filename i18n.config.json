@@ -1,0 +1,20 @@
+{
+  "cliLang": "en",
+  "srcPath": "./src",
+  "fileExt": "ts,js",
+  "wrapCharacter": "[\u4e00-\u9fa5]",
+  "wrapperFuncName": "t",
+  "excludeWrapperFuncName": "Logger.appendFile",
+  "jsx2Trans": false,
+  "importStr": "import i18n from '../i18n'\n",
+  "exclude": "node_modules,dist,git",
+  "localeDir": "./src/locales",
+  "languages": "zh,en",
+  "sourceLanguage": "zh",
+  "transFileName": "translation",
+  "transFileExt": "json",
+  "targetTransDir": "./src/translations",
+  "targetTransFile": "transLib.json",
+  "secretId": "",
+  "secretKey": ""
+}

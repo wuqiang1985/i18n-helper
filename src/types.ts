@@ -11,6 +11,7 @@ export interface iTransInfo {
   wrapCount: number;
 }
 export interface iI18nConf {
+  cliLang: 'zh' | 'en';
   projectType: string;
   srcPath: string;
   fileExt: string;
