@@ -22,7 +22,7 @@ Read this in other languages: English | [简体中文](./README.md)
 ## What is i18n-helper-cli
 
 i18n-helper-cli is an overall solution for Web internationalization, including automatic `Wrap word`, `Extract word`, `Translate word`, `Translation statistics`, `Man-hour saving estimation statistics`, `Multi-language display of the webpage anomaly detection`(Coming soon) and other functions. It can greatly reduce the cost of development, testing, and translation for each role, and reduce duplication of work and low-level errors.
-![i18n-helper-cli](https://user-images.githubusercontent.com/1751494/129152542-77d9ed28-5abd-4f98-8302-2c657d20019d.gif)
+![i18n-helper-cli-en](https://user-images.githubusercontent.com/1751494/130022426-496f9d5d-84f3-4725-9c62-a07894515ef4.gif)
 
 ## Why do we need i18n-helper-cli
 

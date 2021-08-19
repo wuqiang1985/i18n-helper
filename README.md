@@ -77,7 +77,7 @@ i18n-helper-cli 可以很好的解决上述问题。
 
 ### 实例
 
-[请参考 example](./examples/react-demo/README.md)
+[请参考 example](./examples/)
 
 ### 安装
 
