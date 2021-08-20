@@ -6,7 +6,7 @@ module.exports = {
   // 默认包裹和提取词条的目录
   srcPath: './',
   // 扫描文件格式
-  fileExt: 'js,jsx,ts,tsx',
+  fileExt: 'js,ts,tsx',
   // 包裹的字符集，下面是中文
   wrapCharacter: '[\u4e00-\u9fa5]',
   // 包裹词条的名字
@@ -16,7 +16,7 @@ module.exports = {
   // jsx中的文字包裹方式，true用<trans></trans>， false用【wrapperFuncName】的value包裹
   jsx2Trans: false,
   // 当文件需要翻译时引入的文件
-  importStr: `import { Trans, useTranslation, Translation, withTranslation } from 'react-i18next';\n`,
+  importStr: `import {t} from './i18n;';\n`,
   // 排除目录，此目录下的不会不会执行包裹和提取词条操作
   exclude: 'node_modules,dist,git',
   // 翻译词条目录
@@ -30,9 +30,9 @@ module.exports = {
   // 翻译词条文件格式: json, po
   transFileExt: 'json',
   // 翻译词库目录（自动翻译目录）
-  targetTransDir: './src/translations',
+  targetTransDir: './translations',
   // 翻译词库文件名
-  targetTransFile: 'transLib.json',
+  targetTransFile: 'sourceTranslation.json',
   // 腾讯云 secretId
   secretId: '',
   // 腾讯云 secretKey

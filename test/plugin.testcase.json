@@ -26,5 +26,35 @@
       "input": "<div>wu武强qiang</div>",
       "output": "<div>{t('wu武强qiang')}</div>;"
     }
+  },
+  "TemplateLiteral": {
+    "【全中文】const word = `武强` => const word = t('武强');": {
+      "input": "const word = `武强`",
+      "output": "const word = t('武强');"
+    },
+    "【没有中文】const word = `wuqiang` => const word = 'wuqiang';": {
+      "input": "const word = `wuqiang`",
+      "output": "const word = `wuqiang`;"
+    },
+    "【中英混合】const word = `wu武强qiang` => const word = t('wu武强qiang');": {
+      "input": "const word = `wu武强qiang`",
+      "output": "const word = t('wu武强qiang');"
+    },
+    "【Identifier】const word = `武强${age}` => const word = t('武强{{age}}', { age });": {
+      "input": "const word = `武强${age}`",
+      "output": "const word = t('武强{{age}}', { age });"
+    },
+    "【MemberExpression - Identifier】const word = `武强${data.age}` => const word = t('武强{{age}}', { age: data.age });": {
+      "input": "const word = `武强${data.age}`",
+      "output": "const word = t('武强{{age}}', { age: data.age });"
+    },
+    "【MemberExpression - MemberExpression】const word = `武强${data.man.obj.age}` => const word = t('武强{{age}}', { age: data.man.obj.age });": {
+      "input": "const word = `武强${data.man.obj.age}`",
+      "output": "const word = t('武强{{age}}', { age: data.man.obj.age });"
+    },
+    "【MemberExpression - NumericLiteral】const word = `武强${data[0]}` => const word = t('武强{{0}}', { 0: data[0] });": {
+      "input": "const word = `武强${data[0]}`",
+      "output": "const word = t('武强{{0}}', { 0: data[0] });"
+    }
   }
 }

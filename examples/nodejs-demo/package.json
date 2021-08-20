@@ -14,7 +14,7 @@
     "i18next-fs-backend": "^1.1.1"
   },
   "devDependencies": {
-    "i18n-helper-cli": "^0.1.1"
+    "i18n-helper-cli": "^0.1.2"
   },
   "type": "module"
 }

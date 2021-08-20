@@ -26,6 +26,8 @@ beforeAll(() => {
 const transformCode = (code: string) => {
   const result = transformSync(code, {
     plugins: [['@babel/plugin-syntax-typescript', { isTSX: true }], plugin],
+    // compact: true,
+    retainLines: true,
   });
 
   return result;
