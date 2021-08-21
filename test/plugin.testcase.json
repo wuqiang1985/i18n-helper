@@ -32,9 +32,13 @@
       "input": "const word = `武强`",
       "output": "const word = t('武强');"
     },
-    "【没有中文】const word = `wuqiang` => const word = 'wuqiang';": {
+    "【没有中文 - 没有$】const word = `wuqiang` => const word = 'wuqiang';": {
       "input": "const word = `wuqiang`",
       "output": "const word = `wuqiang`;"
+    },
+    "【没有中文 - 有$】const word = `wuqiang${age}!` => const word = `wuqiang${age}!`;": {
+      "input": "const word = `wuqiang${age}!`",
+      "output": "const word = `wuqiang${age}!`;"
     },
     "【中英混合】const word = `wu武强qiang` => const word = t('wu武强qiang');": {
       "input": "const word = `wu武强qiang`",
@@ -55,6 +59,18 @@
     "【MemberExpression - NumericLiteral】const word = `武强${data[0]}` => const word = t('武强{{0}}', { 0: data[0] });": {
       "input": "const word = `武强${data[0]}`",
       "output": "const word = t('武强{{0}}', { 0: data[0] });"
+    },
+    "【CallExpression - Identifier】const word = `武强${run()}` => const word = t('武强{{run}}', { run: run() });": {
+      "input": "const word = `武强${run()}`",
+      "output": "const word = t('武强{{run}}', { run: run() });"
+    },
+    "【CallExpression - Identifier - 带参数】const word = `武强${run(100, 'male')}` => const word = t('武强{{run}}', { run: run(100, 'male') });": {
+      "input": "const word = `武强${run(100, 'male')}`",
+      "output": "const word = t('武强{{run}}', { run: run(100, 'male') });"
+    },
+    "【CallExpression - MemberExpression】const word = `武强${obj.run()}` => const word = t('武强{{run}}', { run: obj.run() });": {
+      "input": "const word = `武强${obj.run()}`",
+      "output": "const word = t('武强{{run}}', { run: obj.run() });"
     }
   }
 }
