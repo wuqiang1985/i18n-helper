@@ -57,7 +57,7 @@ const getMatchedFiles = (
     const ext = fileExt.includes(',') ? `{${fileExt}}` : fileExt;
     const pattern = `${filePath}/**/*.${ext}`;
     const ignorePath = i18nConf.parsedExclude?.map((item) => {
-      return `**/${item}/**`;
+      return `./**/${item}/**`;
     });
     const option = {
       // ignore: ['**/node_modules/**', '**/.git/**', '**/dist/**'],

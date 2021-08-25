@@ -1,8 +1,11 @@
 {
+  "cliLang": "zh",
   "projectType": "[react]",
   "srcPath": "./src",
   "fileExt": "js,jsx,ts,tsx",
+  "wrapCharacter": "[\u4e00-\u9fa5]",
   "wrapperFuncName": "t",
+  "excludeWrapperFuncName": "console.log",
   "jsx2Trans": false,
   "importStr": "import { useTranslation } from 'react-i18next';\n",
   "exclude": "node_modules,dist,git",

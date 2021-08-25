@@ -18,7 +18,7 @@ module.exports = {
   // 当文件需要翻译时引入的文件
   importStr: `import {t} from './i18n;';\n`,
   // 排除目录，此目录下的不会不会执行包裹和提取词条操作
-  exclude: 'node_modules,dist,git',
+  exclude: 'node_modules,dist,.git',
   // 翻译词条目录
   localeDir: './locales',
   // 翻译语种
