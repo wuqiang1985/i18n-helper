@@ -1,6 +1,6 @@
 {
   "name": "i18n-helper-cli",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "i18n 命令行工具。一键包裹，提取，翻译，统计。支持网页截图，翻译词条检测",
   "main": ".src/cli.js",
   "scripts": {
