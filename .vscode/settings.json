@@ -11,5 +11,10 @@
     "javascriptreact",
     "typescript",
     "typescriptreact"
+  ],
+  "i18n-ally.localesPaths": [
+    "src/locales",
+    "examples/nodejs-demo/locales",
+    "examples/react-demo/public/locales"
   ]
 }

@@ -28,9 +28,9 @@ const generateFile = (
     code = `${i18nConf.importStr}${code}`;
   }
 
-  // TODO: 这里有时候会出问题，晚点看看
+  // TODO: 这里应该读取本地Prettier配置
   code = prettier.format(code, {
-    parser: 'babel',
+    parser: 'typescript',
     singleQuote: true,
   });
 
@@ -60,10 +60,11 @@ const wrap = (
     const transResult = transformFileSync(filename, {
       plugins: [
         ['@babel/plugin-syntax-typescript', { isTSX: true }],
-        ['@babel/plugin-proposal-decorators', { legacy: true }],
-        ['@babel/plugin-proposal-class-properties', { loose: true }],
+        // ['@babel/plugin-proposal-decorators', { legacy: true }],
+        // ['@babel/plugin-proposal-class-properties', { loose: true }],
         plugin,
       ],
+      retainLines: true,
     });
 
     if (transResult) {
