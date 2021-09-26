@@ -1,5 +1,3 @@
-import path from 'path';
-
 import { transformSync } from '@babel/core';
 
 import i18nPlugin from '../src/plugin/babelPlugin';

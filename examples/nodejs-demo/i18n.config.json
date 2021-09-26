@@ -7,7 +7,7 @@
   "wrapperFuncName": "t",
   "excludeWrapperFuncName": "console.log",
   "jsx2Trans": false,
-  "importStr": "import i18n from './i18n.js",
+  "importStr": "import i18n from './i18n.js\n",
   "exclude": "node_modules,dist,git",
   "localeDir": "./locales",
   "languages": "zh,en",

@@ -1,5 +1,3 @@
-import fs from 'fs';
-
 import { t } from '../i18n';
 import wrap from './wrap';
 import extractWording from './extract';
@@ -47,20 +45,19 @@ const scan = async (
     translateMachine: isTranslateMachine,
     count: isCount,
   } = cmdConf;
+  const humanStatistics: any = {};
+  const start = process.hrtime.bigint();
+
   Logger.info(
     t('【开始】-{{getCmdNames}}词条', {
       getCmdNames: getCmdNames(cmdConf),
     }),
   );
-  const start = process.hrtime.bigint();
-  const humanStatistics: any = {};
 
   try {
     if (isWrap || isExtract) {
       // 包裹还是提取词条都需要，因为要做语法树分析
-      const filePath = i18nConf.parsedPath as string;
-      const stat = fs.statSync(filePath);
-      const files = getMatchedFiles(filePath, stat, i18nConf);
+      const files = getMatchedFiles(i18nConf);
       const fileCount = files.length;
       Logger.info(
         t('本次需扫描文件【{{fileCount}}】个', {
@@ -69,6 +66,7 @@ const scan = async (
       );
 
       if (fileCount > 0) {
+        // 包裹词条
         let originalScanWordInfoList: iWordInfo[][] = [];
         const wrapResult = wrap(files, i18nConf, cmdConf);
         originalScanWordInfoList =
@@ -79,6 +77,7 @@ const scan = async (
           countActionResult('wrap', wrapInfo, humanStatistics);
         }
 
+        // 提取词条
         if (originalScanWordInfoList?.length > 0 && isExtract) {
           const extractResult = extractWording(
             originalScanWordInfoList,
@@ -91,6 +90,7 @@ const scan = async (
       }
     }
 
+    // 翻译词条
     if (isTranslateSource || isTranslateMachine) {
       let transType;
 
@@ -108,6 +108,7 @@ const scan = async (
       countActionResult('translate', tranResult, humanStatistics);
     }
 
+    // 统计翻译情况
     if (isCount) {
       countTranslation(i18nConf.parsedLanguages as string[], i18nConf);
     }
