@@ -31,7 +31,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
     const combine = (value: string) =>
       Object.assign(t.StringLiteral(value), {
         extra: {
-          raw: `\'${value}\'`,
+          raw: `\'${value.replace("'", "\\'")}\'`,
           rawValue: value,
         },
       });
@@ -70,7 +70,6 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
         StringLiteral(path: NodePath<tt.StringLiteral>) {
           let { value } = path.node;
           value = replaceLineBreak(value);
-
           if (needWrap(wrapCharacter, value)) {
             // console.log(`string直接用 replaceLineBreak value：${value}`);
             let newNode = t.CallExpression(t.Identifier(T_WRAPPER), [

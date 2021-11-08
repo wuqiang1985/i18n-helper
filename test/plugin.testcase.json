@@ -11,6 +11,10 @@
     "【中英混合】const word = 'wu武强qiang' => const word = t('wu武强qiang');": {
       "input": "const word = 'wu武强qiang'",
       "output": "const word = t('wu武强qiang');"
+    },
+    "【单引号】const word = \"你'好\" => const word = t(\"你'好\");": {
+      "input": "const word = \"你'好\"",
+      "output": "const word = t('你\\'好');"
     }
   },
   "JSXText": {
