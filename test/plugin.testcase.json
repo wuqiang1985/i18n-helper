@@ -71,6 +71,10 @@
     "【CallExpression - MemberExpression】const word = `武强${obj.run()}` => const word = t('武强{{run}}', { run: obj.run() });": {
       "input": "const word = `武强${obj.run()}`",
       "output": "const word = t('武强{{run}}', { run: obj.run() });"
+    },
+    "【ConditionalExpression】const word = `武强${index > 0 ? '10' : '-10'}呢` => const word = t('武强{{ConditionalExpression1}呢}', { ConditionalExpression1: index > 0 ? '10' : '-10' });": {
+      "input": "const word = `武强${index > 0 ? '10' : '-10'}呢`",
+      "output": "const word = t('武强{{ConditionalExpression1}}呢', { ConditionalExpression1: index > 0 ? '10' : '-10' });"
     }
   }
 }

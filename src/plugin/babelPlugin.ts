@@ -115,6 +115,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
           });
 
           let value = '';
+          let index = 0;
           const variableList: any = [];
 
           // 组装模板字符串左侧部分
@@ -206,6 +207,19 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 value += `{{${memberExpressionName}}}`;
                 break;
               }
+              case 'ConditionalExpression': {
+                // TODO: 目前用ConditionalExpression{index}作为key，可读性不是太好
+                // 另外如果`武强${index > '这' ? '哈哈' : '呵呵'}呢`
+                // 如上'这'，’哈哈‘，’呵呵‘都不会被包裹。。。
+                index += 1;
+                variable.type = 'ConditionalExpression';
+                variable.key = `ConditionalExpression${index}`;
+                variable.value = templateLiteralItem;
+                variableList.push(variable);
+
+                value += `{{${variable.key}}}`;
+                break;
+              }
               default: {
                 const thisArgs = this as any;
                 const filename =
@@ -242,6 +256,12 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 obj = t.objectProperty(
                   t.Identifier(item.key),
                   item.value as tt.MemberExpression,
+                );
+                break;
+              case 'ConditionalExpression':
+                obj = t.objectProperty(
+                  t.Identifier(item.key),
+                  item.value as tt.ConditionalExpression,
                 );
                 break;
               default:
