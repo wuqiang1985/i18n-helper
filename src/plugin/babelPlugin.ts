@@ -115,7 +115,9 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
           });
 
           let value = '';
-          let index = 0;
+          let CEIndex = 0;
+          let BEIndex = 0;
+          let LEIndex = 0;
           const variableList: any = [];
 
           // 组装模板字符串左侧部分
@@ -211,9 +213,29 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 // TODO: 目前用ConditionalExpression{index}作为key，可读性不是太好
                 // 另外如果`武强${index > '这' ? '哈哈' : '呵呵'}呢`
                 // 如上'这'，’哈哈‘，’呵呵‘都不会被包裹。。。
-                index += 1;
+                CEIndex += 1;
                 variable.type = 'ConditionalExpression';
-                variable.key = `ConditionalExpression${index}`;
+                variable.key = `ConditionalExpression${CEIndex}`;
+                variable.value = templateLiteralItem;
+                variableList.push(variable);
+
+                value += `{{${variable.key}}}`;
+                break;
+              }
+              case 'BinaryExpression': {
+                BEIndex += 1;
+                variable.type = 'BinaryExpression';
+                variable.key = `BinaryExpression${BEIndex}`;
+                variable.value = templateLiteralItem;
+                variableList.push(variable);
+
+                value += `{{${variable.key}}}`;
+                break;
+              }
+              case 'LogicalExpression': {
+                LEIndex += 1;
+                variable.type = 'LogicalExpression';
+                variable.key = `LogicalExpression${LEIndex}`;
                 variable.value = templateLiteralItem;
                 variableList.push(variable);
 
@@ -262,6 +284,18 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 obj = t.objectProperty(
                   t.Identifier(item.key),
                   item.value as tt.ConditionalExpression,
+                );
+                break;
+              case 'BinaryExpression':
+                obj = t.objectProperty(
+                  t.Identifier(item.key),
+                  item.value as tt.BinaryExpression,
+                );
+                break;
+              case 'LogicalExpression':
+                obj = t.objectProperty(
+                  t.Identifier(item.key),
+                  item.value as tt.LogicalExpression,
                 );
                 break;
               default:
