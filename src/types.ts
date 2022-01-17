@@ -15,6 +15,7 @@ export interface iI18nConf {
   projectType: string;
   srcPath: string;
   fileExt: string;
+  gitModel: boolean;
   wrapCharacter: string;
   wrapperFuncName: string;
   excludeWrapperFuncName: string;

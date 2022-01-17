@@ -9,6 +9,8 @@ module.exports = {
   fileExt: 'js,ts,tsx',
   // 包裹的字符集，下面是中文
   wrapCharacter: '[\u4e00-\u9fa5]',
+  // git 模式，只处理新增和修改文件
+  gitModel: false,
   // 包裹词条的名字
   wrapperFuncName: 't',
   // 忽略掉包裹的方法，多个用,分隔

@@ -38,10 +38,11 @@
   },
   "homepage": "https://github.com/wuqiang1985/i18n-helper#readme",
   "devDependencies": {
+    "@babel/cli": "^7.16.8",
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-conventional": "^12.1.4",
-    "@types/babel-types": "^7.0.9",
     "@types/babel__core": "^7.1.14",
+    "@types/babel-types": "^7.0.9",
     "@types/chalk": "^2.2.0",
     "@types/commander": "^2.12.2",
     "@types/fs-extra": "^9.0.12",
@@ -54,6 +55,7 @@
     "@types/node": "^15.12.4",
     "@types/ora": "^3.2.0",
     "@types/prettier": "^2.3.0",
+    "@types/shelljs": "^0.8.9",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
     "@typescript-eslint/parser": "^4.28.0",
     "cz-conventional-changelog": "^3.3.0",
@@ -87,6 +89,7 @@
     "log-symbols": "^5.0.0",
     "ora": "^5.4.1",
     "prettier": "^2.3.2",
+    "shelljs": "^0.8.4",
     "tencentcloud-sdk-nodejs": "^4.0.178",
     "vue-template-compiler": "^2.6.14"
   },

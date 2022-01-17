@@ -5,6 +5,8 @@ import path from 'path';
 import fse from 'fs-extra';
 import inquirer from 'inquirer';
 import glob from 'glob';
+import shell from 'shelljs';
+import _ from 'lodash';
 
 import Logger from './logger';
 import { I18N_CONFIGURATION_FILE_NAME } from '../config/const';
@@ -40,21 +42,63 @@ const generateConfiguration = (useDefaultConfig: boolean): void => {
 };
 
 /**
- * 获取指定路径下匹配的文件
- * @param i18nConf i18n配置
- * @returns 指定路径下符匹配的文件列表
+ * 根据 exclude 中的路径或文件过滤
+ * @param parsedExclude
+ * @param changedFiles
+ * @returns 排除后的文件列表
  */
-const getMatchedFiles = (i18nConf: iI18nConf): string[] => {
+const FilterFilesByExclude = (
+  parsedExclude: string[] | undefined,
+  changedFiles: string[],
+): string[] => {
+  let excludeFiles: string[] = [];
+
+  parsedExclude?.map((excludeItem) => {
+    const stat = fs.statSync(excludeItem);
+
+    if (stat.isDirectory()) {
+      const item = changedFiles.filter((cf) => cf.includes(excludeItem));
+
+      if (item) {
+        excludeFiles = excludeFiles.concat(item);
+      }
+    }
+
+    if (stat.isFile()) {
+      const excludeFile = path.basename(excludeItem);
+      const changeFile = changedFiles.find(
+        (cf) => path.basename(cf) === excludeFile,
+      );
+
+      if (changeFile) {
+        excludeFiles.push(changeFile);
+      }
+    }
+  });
+
+  changedFiles = _.difference(changedFiles, excludeFiles);
+
+  return changedFiles;
+};
+
+/**
+ * 获取符合规则文件列表 - 指定路径srcPath下，符合fileExt后缀文件，过滤exclude路径或文件
+ * @param i18nConf i18n配置
+ * @returns 符合条件文件列表
+ */
+const getMatchedFilesByPath = (i18nConf: iI18nConf): string[] => {
   let files: string[] = [];
   const filePath = i18nConf.parsedPath as string;
+  const { fileExt } = i18nConf;
   const stat = fs.statSync(filePath);
 
-  if (stat.isFile()) {
+  if (stat.isFile() && fileExt.includes(path.extname(filePath).substr(1))) {
     files.push(filePath);
   } else if (stat.isDirectory()) {
-    const { fileExt } = i18nConf;
     const ext = fileExt.includes(',') ? `{${fileExt}}` : fileExt;
     const pattern = `${filePath}/**/*.${ext}`;
+
+    // TODO: Exclude 为空时还需要处理
     const ignorePath = i18nConf.parsedExclude?.map((item) => {
       return item.includes('.')
         ? `${filePath}/**/${item}`
@@ -65,6 +109,66 @@ const getMatchedFiles = (i18nConf: iI18nConf): string[] => {
     };
 
     files = glob.sync(pattern, option);
+
+    // files = glob.sync(pattern);
+  }
+
+  return files;
+};
+
+/**
+ * 获取符合规则文件列表 - git中修改或者新增的文件，同时符合i18n配置fileExt后缀文件，过滤exclude路径或文件
+ * @param i18nConf i18n配置
+ * @returns 符合条件文件列表
+ */
+const getMatchedFilesByGit = (i18nConf: iI18nConf): string[] => {
+  const { fileExt, parsedExclude, srcPath } = i18nConf;
+
+  // shell.cd(srcPath);
+
+  // TODO: 晚点看看
+  // 新增一个文件夹，再往里面加文件(e.g. src下新建文件夹test，文件夹中新建文件a.js)，此时无法把a.js扫出，反而会扫出test/，
+  // 如果是一个已在git仓库中的文件夹里加一个文件则会被扫描出来，同git status
+  const gitCommand = `git status --porcelain | awk '!match($1, "D"){print $2}'`;
+
+  // git 非 delete 文件列表
+  let changedFiles = shell
+    .exec(gitCommand, {
+      silent: true,
+    })
+    .stdout.split('\n');
+  // 最后一个为空，所以弹出
+  changedFiles.pop();
+
+  // 按文件后缀过滤
+  changedFiles = changedFiles.filter((filePath) => {
+    return fileExt.split(',').includes(path.extname(filePath).substr(1));
+  });
+
+  // 按exclude过滤
+  changedFiles = FilterFilesByExclude(parsedExclude, changedFiles);
+
+  return changedFiles;
+};
+
+/**
+ * 获取指定路径下匹配的文件
+ * @param i18nConf i18n配置
+ * @returns 指定路径下符匹配的文件列表
+ */
+const getMatchedFiles = (i18nConf: iI18nConf): string[] => {
+  let files: string[] = [];
+
+  const { gitModel } = i18nConf;
+  if (gitModel) {
+    const isGitInstalled = !!shell.which('git');
+    if (isGitInstalled) {
+      files = getMatchedFilesByGit(i18nConf);
+    } else {
+      Logger.error('未安装git，只能试用文件路径形式，请将gitMode设为false');
+    }
+  } else {
+    files = getMatchedFilesByPath(i18nConf);
   }
 
   return files;
@@ -103,6 +207,7 @@ const parseI18nConf = (
       '\n',
       '',
     );
+
     i18nConf.parsedExcludeWrapperFuncName =
       i18nConf.excludeWrapperFuncName.split(',');
 
@@ -124,4 +229,5 @@ export {
   getMatchedFiles,
   isI18nConfExited,
   parseI18nConf,
+  FilterFilesByExclude,
 };

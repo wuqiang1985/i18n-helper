@@ -1,10 +1,11 @@
-import { getMatchedFiles } from '../src/util/fileHelper';
+import { getMatchedFiles, FilterFilesByExclude } from '../src/util/fileHelper';
 import { iI18nConf } from '../src/types';
 
 let conf: iI18nConf = {
   cliLang: 'en',
   srcPath: './src',
   fileExt: 'ts,js',
+  gitModel: false,
   wrapCharacter: '[\u4e00-\u9fa5]',
   wrapperFuncName: 't',
   excludeWrapperFuncName: 'Logger.appendFile',
@@ -41,6 +42,7 @@ describe('getMatchedFiles', () => {
         'r*.js',
       ],
     };
+
     const files = getMatchedFiles(conf);
     expect(files.length).toEqual(3);
   });
@@ -57,7 +59,25 @@ describe('getMatchedFiles', () => {
         'r*.js',
       ],
     };
+
     const files = getMatchedFiles(conf);
     expect(files.length).toEqual(3);
+  });
+
+  it('git 模式 - 根据 exclude 中的路径或文件过滤', () => {
+    const parsedExclude = ['src/util', 'src/config', 'src/command/scan.ts'];
+    const changedFiles = [
+      'src/config/i18n.default.config.ts',
+      'src/command/count.ts',
+      'src/command/scan.ts',
+      'src/util/logger.ts',
+      'src/util/helper.ts',
+      'src/plugin/babelPlugin.ts',
+    ];
+
+    const files = FilterFilesByExclude(parsedExclude, changedFiles);
+    expect(files.sort()).toEqual(
+      ['src/command/count.ts', 'src/plugin/babelPlugin.ts'].sort(),
+    );
   });
 });

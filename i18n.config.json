@@ -2,6 +2,7 @@
   "cliLang": "en",
   "srcPath": "./src",
   "fileExt": "ts,js",
+  "gitModel": false,
   "wrapCharacter": "[\u4e00-\u9fa5]",
   "wrapperFuncName": "t",
   "excludeWrapperFuncName": "Logger.appendFile",
