@@ -371,10 +371,13 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
         },
 
         CallExpression(path: NodePath<tt.CallExpression>) {
+          const excludeFuncName = i18nConf.parsedExcludeWrapperFuncName;
           switch (path.node.callee.type) {
             // TODO: 这里目前只能处理 Identifier 方法，后续需要修改
             case 'Identifier': {
               const { name } = path.node.callee as tt.Identifier;
+
+              // 如果是 i18n 包裹的则只收集词条
               if (name === T_WRAPPER) {
                 path.node.arguments
                   .filter((arg) => arg.type === 'StringLiteral')
@@ -389,10 +392,15 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                   });
                 path.skip();
               }
+
+              // 处理排除方法 excludeWrapperFuncName
+              if (excludeFuncName.includes(name)) {
+                path.skip();
+              }
               break;
             }
             case 'MemberExpression': {
-              const excludeFuncName = i18nConf.parsedExcludeWrapperFuncName;
+              // // 处理排除方法 excludeWrapperFuncName
               if (excludeFuncName.length > 0) {
                 const names: string[] = [];
                 const me = path.node.callee as tt.MemberExpression;
