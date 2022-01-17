@@ -65,6 +65,8 @@ const wrap = (
         plugin,
       ],
       retainLines: true,
+      configFile: false,
+      babelrc: false,
     });
 
     if (transResult) {
