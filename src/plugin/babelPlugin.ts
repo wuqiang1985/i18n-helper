@@ -117,6 +117,8 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
           let CEIndex = 0;
           let BEIndex = 0;
           let LEIndex = 0;
+          let OMEIndex = 0;
+          let OCEIndex = 0;
           const variableList: any = [];
 
           // 组装模板字符串左侧部分
@@ -241,6 +243,26 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 value += `{{${variable.key}}}`;
                 break;
               }
+              case 'OptionalMemberExpression': {
+                OMEIndex += 1;
+                variable.type = 'OptionalMemberExpression';
+                variable.key = `OptionalMemberExpression${OMEIndex}`;
+                variable.value = templateLiteralItem;
+                variableList.push(variable);
+
+                value += `{{${variable.key}}}`;
+                break;
+              }
+              case 'OptionalCallExpression': {
+                OCEIndex += 1;
+                variable.type = 'OptionalCallExpression';
+                variable.key = `OptionalCallExpression${OCEIndex}`;
+                variable.value = templateLiteralItem;
+                variableList.push(variable);
+
+                value += `{{${variable.key}}}`;
+                break;
+              }
               default: {
                 const thisArgs = this as any;
                 const filename =
@@ -295,6 +317,18 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 obj = t.objectProperty(
                   t.Identifier(item.key),
                   item.value as tt.LogicalExpression,
+                );
+                break;
+              case 'OptionalMemberExpression':
+                obj = t.objectProperty(
+                  t.Identifier(item.key),
+                  item.value as tt.OptionalMemberExpression,
+                );
+                break;
+              case 'OptionalCallExpression':
+                obj = t.objectProperty(
+                  t.Identifier(item.key),
+                  item.value as tt.OptionalCallExpression,
                 );
                 break;
               default:
