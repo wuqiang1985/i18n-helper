@@ -87,6 +87,24 @@
     "【LogicalExpression】const word = `武强${age || 18}岁` => const word = t('武强{{LogicalExpression1}}岁', { LogicalExpression1: age || 18 });": {
       "input": "const word = `武强${age || 18}岁`",
       "output": "const word = t('武强{{LogicalExpression1}}岁', { LogicalExpression1: age || 18 });"
+    },
+    "【OptionalMemberExpression】const word = `武强${data?.age}岁` => const word = t('武强{{OptionalMemberExpression1}}岁', { OptionalMemberExpression1: data?.age });": {
+      "input": "const word = `武强${data?.age}岁`",
+      "output": "const word = t('武强{{OptionalMemberExpression1}}岁', { OptionalMemberExpression1: data?.age });"
+    },
+    "【OptionalCallExpression】const word = `武强${data?.age()}岁` => const word = t('武强{{OptionalCallExpression1}}岁', { OptionalCallExpression1: data?.age() });": {
+      "input": "const word = `武强${data?.age()}岁`",
+      "output": "const word = t('武强{{OptionalCallExpression1}}岁', { OptionalCallExpression1: data?.age() });"
+    }
+  },
+  "excludeWrapperFuncName": {
+    "【不包裹 - callee Identifier】const word = log('武强') => const word = log('武强');": {
+      "input": "const word = log('武强')",
+      "output": "const word = log('武强');"
+    },
+    "【不包裹 - callee MemberExpression】const word = console.error('武强') => const word = console.error('武强');": {
+      "input": "const word = console.error('武强')",
+      "output": "const word = console.error('武强');"
     }
   }
 }

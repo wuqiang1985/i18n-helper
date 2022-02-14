@@ -271,6 +271,7 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
                 Logger.appendFile(
                   `[${filename}][${line}]: ${templateLiteralItem.type} 未处理`,
                 );
+                transInfo.wrapSuccess = false;
                 break;
               }
             }

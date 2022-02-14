@@ -14,9 +14,11 @@ beforeAll(() => {
     needImport: true,
     wordInfoArray: [],
     wrapCount: 0,
+    wrapSuccess: false,
   };
 
   const conf: iI18nConf = parseI18nConf() as iI18nConf;
+  conf.parsedExcludeWrapperFuncName = ['console.error', 'log'];
 
   plugin = i18nPlugin(transInfo, conf);
 });

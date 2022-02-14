@@ -9,6 +9,7 @@ export interface iTransInfo {
   needImport: boolean;
   wordInfoArray: iWordInfo[];
   wrapCount: number;
+  wrapSuccess: boolean;
 }
 export interface iI18nConf {
   cliLang: 'zh' | 'en';

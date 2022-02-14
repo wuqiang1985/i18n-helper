@@ -179,6 +179,8 @@ module.exports = {
   srcPath: './',
   // 扫描文件格式
   fileExt: 'js,jsx,ts,tsx',
+  // git模式，设置为 true， 则只扫描修改和新增文件
+  gitModel: false,
   // 包裹的字符集，下面是中文
   wrapCharacter: '[\u4e00-\u9fa5]',
   // 包裹词条的名字

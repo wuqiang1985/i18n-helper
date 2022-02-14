@@ -48,6 +48,8 @@ const wrap = (
   cmdConf: Partial<iCmd>,
 ): iWrapResult => {
   const wrapResult: iWrapResult = { wrapInfo: { WRAP_FILE: 0 } };
+  let failCount = 0;
+
   files.forEach((filename) => {
     const transInfo: iTransInfo = {
       needT: false,
@@ -55,6 +57,7 @@ const wrap = (
       needImport: true,
       wordInfoArray: [],
       wrapCount: 0,
+      wrapSuccess: true,
     };
     const plugin = i18nPlugin(transInfo, i18nConf);
     const transResult = transformFileSync(filename, {
@@ -87,6 +90,10 @@ const wrap = (
           generateFile(transInfo, code, filename, i18nConf);
         }
       }
+
+      if (!transInfo.wrapSuccess) {
+        failCount += 1;
+      }
     }
   });
 
@@ -94,6 +101,10 @@ const wrap = (
     Logger.success(t('【包裹】词条包裹已完成！'));
   } else if (cmdConf.wrap) {
     Logger.warning(t('【包裹】本次无词条被包裹！'));
+  }
+
+  if (failCount > 0) {
+    Logger.warning('【包裹】本次有词条包裹不成功，详情参见./i18n.error.log！');
   }
 
   return wrapResult;
