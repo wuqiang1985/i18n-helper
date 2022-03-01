@@ -97,14 +97,36 @@
       "output": "const word = t('武强{{OptionalCallExpression1}}岁', { OptionalCallExpression1: data?.age() });"
     }
   },
-  "excludeWrapperFuncName": {
-    "【不包裹 - callee Identifier】const word = log('武强') => const word = log('武强');": {
-      "input": "const word = log('武强')",
-      "output": "const word = log('武强');"
+  "BinaryExpression": {
+    "【不包裹 - BinaryExpression !==】const word = name !== '武强' ? 'wu' : 'qiang' => const word = name !== '武强' ? 'wu' : 'qiang';": {
+      "input": "const word = name !== '武强' ? 'wu' : 'qiang'",
+      "output": "const word = name !== '武强' ? 'wu' : 'qiang';"
+    },
+    "【不包裹 - BinaryExpression ===】const word = name === '武强' ? 'wu' : 'qiang' => const word = name === '武强' ? 'wu' : 'qiang';": {
+      "input": "const word = name === '武强' ? 'wu' : 'qiang'",
+      "output": "const word = name === '武强' ? 'wu' : 'qiang';"
+    }
+  },
+  "excludeWrapperFuncName: ^console,append,indexOf": {
+    "【不包裹 - callee Identifier】const word = append('武强') => const word = append('武强');": {
+      "input": "const word = append('武强')",
+      "output": "const word = append('武强');"
     },
     "【不包裹 - callee MemberExpression】const word = console.error('武强') => const word = console.error('武强');": {
       "input": "const word = console.error('武强')",
       "output": "const word = console.error('武强');"
+    },
+    "【不包裹 - callee MemberExpression】const word = console.log('武强') => const word = console.log('武强');": {
+      "input": "const word = console.log('武强')",
+      "output": "const word = console.log('武强');"
+    },
+    "【包裹 - callee MemberExpression】const word = obj.console.log('武强') => const word = obj.console.log('武强');": {
+      "input": "const word = obj.console.log('武强')",
+      "output": "const word = obj.console.log(t('武强'));"
+    },
+    "【不包裹 - callee MemberExpression】const word = obj.indexOf('武强') => const word = obj.indexOf('武强');": {
+      "input": "const word = obj.indexOf('武强')",
+      "output": "const word = obj.indexOf('武强');"
     }
   }
 }

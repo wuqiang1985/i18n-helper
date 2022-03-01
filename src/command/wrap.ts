@@ -2,6 +2,7 @@ import fs from 'fs';
 
 import { transformFileSync } from '@babel/core';
 import prettier from 'prettier';
+import { ESLint } from 'eslint';
 
 import { t } from '../i18n';
 import i18nPlugin from '../plugin/babelPlugin';
@@ -11,6 +12,12 @@ import { iTransInfo, iWordInfo, iI18nConf, iCmd, iWrapResult } from '../types';
 const originalScanWordInfoList: iWordInfo[][] = [];
 let generateFileCount = 0;
 
+const eslintFormat = async (filePath: string) => {
+  const eslint = new ESLint({ fix: true });
+  const results = await eslint.lintFiles(filePath);
+  await ESLint.outputFixes(results);
+};
+
 /**
  * 生成包裹词条的文件
  * @param transInfo 扫描后得到的翻译信息
@@ -18,7 +25,7 @@ let generateFileCount = 0;
  * @param filename 生成的文件名
  * @param i18nConfig i18n配置
  */
-const generateFile = (
+const generateFile = async (
   transInfo: iTransInfo,
   code: string,
   filename: string,
@@ -28,13 +35,17 @@ const generateFile = (
     code = `${i18nConf.importStr}${code}`;
   }
 
-  // TODO: 这里应该读取本地Prettier配置
-  code = prettier.format(code, {
-    parser: 'typescript',
-    singleQuote: true,
-  });
+  if (i18nConf.format === 'Prettier') {
+    code = prettier.format(code, {
+      parser: 'typescript',
+      ...i18nConf.parsedPrettierConfig,
+    });
 
-  fs.writeFileSync(filename, code, 'utf8');
+    fs.writeFileSync(filename, code, 'utf8');
+  } else {
+    fs.writeFileSync(filename, code, 'utf8');
+    await eslintFormat(filename);
+  }
 };
 /**
  * 包裹词条
@@ -42,11 +53,11 @@ const generateFile = (
  * @param i18nConf 18n配置
  * @param cmdConf 命令配置
  */
-const wrap = (
+const wrap = async (
   files: string[],
   i18nConf: iI18nConf,
   cmdConf: Partial<iCmd>,
-): iWrapResult => {
+): Promise<iWrapResult> => {
   const wrapResult: iWrapResult = { wrapInfo: { WRAP_FILE: 0 } };
   let failCount = 0;
 

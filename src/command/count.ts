@@ -5,11 +5,12 @@ import fse from 'fs-extra';
 
 import { t } from '../i18n';
 import Logger from '../util/logger';
+import { formatSeconds } from '../util/helper';
 import { iI18nConf, iExtractResult, iActionResult } from '../types';
 
 const ACTION_STATISTICS: Record<string, any> = {
-  wrap: { time: 3, title: t('包裹') },
-  extract: { time: 5, title: t('提取') },
+  wrap: { time: 5, title: t('包裹 - 5s / word') },
+  extract: { time: 5, title: t('提取 - 5s / word') },
   translate: { time: 20, title: t('翻译') },
 };
 
@@ -27,7 +28,7 @@ const countActionResult = (
   humanStatistics[title] = {
     Files: actionFileCount,
     Words: actionWordCount,
-    Saving: `${actionWordCount * time}s`,
+    Saving: `${formatSeconds(actionWordCount * time)}`,
   };
 };
 /**

@@ -18,7 +18,7 @@ beforeAll(() => {
   };
 
   const conf: iI18nConf = parseI18nConf() as iI18nConf;
-  conf.parsedExcludeWrapperFuncName = ['console.error', 'log'];
+  conf.parsedExcludeWrapperFuncNameRegex = /^console|indexOf|append/;
 
   plugin = i18nPlugin(transInfo, conf);
 });

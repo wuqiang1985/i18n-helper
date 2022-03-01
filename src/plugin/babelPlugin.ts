@@ -9,6 +9,7 @@ type TLQuasisExpressions = (tt.TemplateElement | tt.Expression | tt.TSType)[];
 
 const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
   const JSX_WRAPPER = 'trans';
+  const OPERATORS = ['===', '==', '!==', '!='];
   const { wrapCharacter, wrapperFuncName: T_WRAPPER } = i18nConf;
 
   /**
@@ -406,7 +407,8 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
         },
 
         CallExpression(path: NodePath<tt.CallExpression>) {
-          const excludeFuncName = i18nConf.parsedExcludeWrapperFuncName;
+          const excludeFuncNameRegex =
+            i18nConf.parsedExcludeWrapperFuncNameRegex;
           switch (path.node.callee.type) {
             // TODO: 这里目前只能处理 Identifier 方法，后续需要修改
             case 'Identifier': {
@@ -429,26 +431,31 @@ const i18nPlugin = (transInfo: iTransInfo, i18nConf: iI18nConf): any => {
               }
 
               // 处理排除方法 excludeWrapperFuncName
-              if (excludeFuncName.includes(name)) {
+              if (excludeFuncNameRegex.test(name)) {
                 path.skip();
               }
               break;
             }
             case 'MemberExpression': {
-              // // 处理排除方法 excludeWrapperFuncName
-              if (excludeFuncName.length > 0) {
-                const names: string[] = [];
-                const me = path.node.callee as tt.MemberExpression;
-                getName(me, names);
-                const MEName = names.reverse().join('.');
-                if (excludeFuncName.includes(MEName)) {
-                  path.skip();
-                }
+              // 处理排除方法 excludeWrapperFuncName
+              const names: string[] = [];
+              const me = path.node.callee as tt.MemberExpression;
+              getName(me, names);
+              const MEName = names.reverse().join('.');
+              if (excludeFuncNameRegex.test(MEName)) {
+                path.skip();
               }
+
               break;
             }
             default:
               break;
+          }
+        },
+
+        BinaryExpression(path: NodePath<tt.BinaryExpression>) {
+          if (OPERATORS.includes(path.node.operator)) {
+            path.skip();
           }
         },
 

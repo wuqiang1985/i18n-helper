@@ -32,11 +32,13 @@ export interface iI18nConf {
   targetTransFile: string;
   secretId: string;
   secretKey: string;
+  format: 'Prettier' | 'ESLint';
   parsedExclude?: string[];
   parsedLanguages?: string[];
   parsedPath?: string;
   parsedImportKey: string;
-  parsedExcludeWrapperFuncName: string[];
+  parsedExcludeWrapperFuncNameRegex: RegExp;
+  parsedPrettierConfig?: any;
 }
 
 export interface iCmd {

@@ -7,6 +7,7 @@ import inquirer from 'inquirer';
 import glob from 'glob';
 import shell from 'shelljs';
 import _ from 'lodash';
+import prettier from 'prettier';
 
 import Logger from './logger';
 import { I18N_CONFIGURATION_FILE_NAME } from '../config/const';
@@ -183,6 +184,22 @@ const isI18nConfExited = (): boolean => {
   return fs.existsSync(configFileName);
 };
 
+const getPrettierConfig = () => {
+  let prettierConfig = null;
+  const pattern = `*prettier*`;
+  const option = {
+    ignore: '*prettierignore',
+    dot: true,
+  };
+
+  const files = glob.sync(pattern, option);
+  if (files.length > 0) {
+    prettierConfig = prettier.resolveConfig.sync(files[0]);
+  }
+
+  return prettierConfig;
+};
+
 /**
  * 读取 i18n 配置文件
  * @returns i18n 配置对象
@@ -208,8 +225,13 @@ const parseI18nConf = (
       '',
     );
 
-    i18nConf.parsedExcludeWrapperFuncName =
-      i18nConf.excludeWrapperFuncName.split(',');
+    i18nConf.parsedExcludeWrapperFuncNameRegex = new RegExp(
+      i18nConf.excludeWrapperFuncName.split(',').join('|'),
+    );
+
+    if (i18nConf.format.toLowerCase() !== 'eslint') {
+      i18nConf.parsedPrettierConfig = getPrettierConfig();
+    }
 
     return i18nConf;
   }

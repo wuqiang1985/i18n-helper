@@ -68,7 +68,7 @@ const scan = async (
       if (fileCount > 0) {
         // 包裹词条
         let originalScanWordInfoList: iWordInfo[][] = [];
-        const wrapResult = wrap(files, i18nConf, cmdConf);
+        const wrapResult = await wrap(files, i18nConf, cmdConf);
         originalScanWordInfoList =
           wrapResult.originalScanWordInfoLit as iWordInfo[][];
         const { wrapInfo } = wrapResult;

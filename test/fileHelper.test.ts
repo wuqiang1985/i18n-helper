@@ -11,6 +11,7 @@ let conf: iI18nConf = {
   excludeWrapperFuncName: 'Logger.appendFile',
   jsx2Trans: false,
   importStr: "import i18n from '../i18n'\n",
+  format: 'Prettier',
   exclude: 'node_modules,dist,git',
   localeDir: './src/locales',
   languages: 'zh,en',
@@ -23,7 +24,7 @@ let conf: iI18nConf = {
   secretKey: '',
   projectType: '',
   parsedImportKey: '',
-  parsedExcludeWrapperFuncName: [],
+  parsedExcludeWrapperFuncNameRegex: /console/,
   parsedPath: './',
   parsedExclude: ['node_modules', 'dist'],
 };
@@ -32,8 +33,7 @@ describe('getMatchedFiles', () => {
   it('绝对路径 - react demo下 3 个文件需要包裹', () => {
     conf = {
       ...conf,
-      parsedPath:
-        '/Users/wuqiang/dev/study/mine/i18n/i18n-helper/examples/react-demo',
+      parsedPath: `${process.cwd()}/examples/react-demo`,
       parsedExclude: [
         'node_modules',
         'dist',

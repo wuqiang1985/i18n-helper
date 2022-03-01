@@ -185,14 +185,16 @@ module.exports = {
   wrapCharacter: '[\u4e00-\u9fa5]',
   // 包裹词条的名字
   wrapperFuncName: 't',
-  // 忽略掉包裹的方法，多个用,分隔
-  excludeWrapperFuncName: 'console.log',
+  // 忽略掉包裹的方法，多个用,分隔，模糊匹配，支持正则,不区分大小写 e.g ^console
+  excludeWrapperFuncName: 'console,split,indexOf',
   // jsx中的文字包裹方式，true用<trans></trans>， false用【wrapperFuncName】的value包裹
   jsx2Trans: false,
   // 当文件需要翻译时引入的文件
   importStr: `import { Trans, useTranslation, Translation, withTranslation } from 'react-i18next';\n`,
   // 排除目录，此目录下的不会不会执行包裹和提取词条操作
-  exclude: 'node_modules,dist,git',
+  exclude: 'node_modules,dist,.git',
+  // 格式化方式，支持Prettier和ESlint，请确保项目根目录下有对应的配置文件，具体参考Prettier和ESlint官网
+  format: 'Prettier',
   // 翻译词条目录
   localeDir: './locales',
   // 翻译语种
@@ -218,7 +220,6 @@ module.exports = {
 
 - [ ] 网页多语言显示异常检测
 - [ ] 丰富提取文件(po, csv, excel 等等)
-- [ ] 增加 git 模式，针对当前改动的文件才转 AST 包裹，提取
 - [ ] 词条提取 cleanMode，目前如果代码中没有这个词条了，提取后的文件依然会有
 
 ## 其他

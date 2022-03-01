@@ -29,4 +29,4 @@ const formatSeconds = (seconds: number): string => {
   return `${ss}秒`;
 };
 
-export { isChinese, formatJSON, needWrap };
+export { isChinese, formatJSON, needWrap, formatSeconds };
