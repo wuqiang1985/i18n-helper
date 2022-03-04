@@ -221,7 +221,7 @@ const parseI18nConf = (
     i18nConf.parsedLanguages = specifiedLanguage.split(',');
     i18nConf.parsedPath = specifiedPath;
     i18nConf.parsedImportKey = importArray[importArray.length - 1].replace(
-      '\n',
+      /(\n|;)/g,
       '',
     );
 
