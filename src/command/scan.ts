@@ -14,6 +14,7 @@ const getCmdNames = (cmdConf: Partial<iCmd>) => {
     translateSource: t('【翻译 - 从源文件翻译】'),
     translateMachine: t('【翻译 - TMT机器翻译】'),
     count: t('【统计】'),
+    check: t('【检查未包裹词条】'),
   };
   const cmdNames: string[] = [];
   Object.keys(cmdConf).map((key) => {
@@ -44,6 +45,7 @@ const scan = async (
     translateSource: isTranslateSource,
     translateMachine: isTranslateMachine,
     count: isCount,
+    check: isCheck,
   } = cmdConf;
   const humanStatistics: any = {};
   const start = process.hrtime.bigint();
@@ -53,16 +55,26 @@ const scan = async (
       getCmdNames: getCmdNames(cmdConf),
     }),
   );
+  Logger.info(
+    '---------------------------------------------------------------------------------------------------',
+  );
 
   try {
-    if (isWrap || isExtract) {
+    if (isWrap || isExtract || isCheck) {
       // 包裹还是提取词条都需要，因为要做语法树分析
       const files = getMatchedFiles(i18nConf);
       const fileCount = files.length;
+
       Logger.info(
-        t('本次需扫描文件【{{fileCount}}】个', {
-          fileCount,
-        }),
+        t(
+          '{{type}} - 本次将处理【{{srcPath}}】下文件扩展名为【{{fileExt}}】的文件，符合要求的文件【{{fileCount}}】个',
+          {
+            fileCount,
+            srcPath: i18nConf.gitModel ? t('当前项目') : i18nConf.srcPath,
+            fileExt: i18nConf.fileExt,
+            type: i18nConf.gitModel ? t('【Git模式】') : t('【文件模式】'),
+          },
+        ),
       );
 
       if (fileCount > 0) {
@@ -77,6 +89,13 @@ const scan = async (
           countActionResult('wrap', wrapInfo, humanStatistics);
         }
 
+        if (isCheck) {
+          delete wrapInfo.WRAP_FILE;
+          if (Object.values(wrapInfo).length > 0) {
+            console.table(wrapInfo);
+          }
+        }
+
         // 提取词条
         if (originalScanWordInfoList?.length > 0 && isExtract) {
           const extractResult = extractWording(
@@ -86,7 +105,10 @@ const scan = async (
           countActionResult('extract', extractResult, humanStatistics);
         }
       } else {
-        Logger.warning(t('【该目录下不存在指定文件】请检查路径'));
+        const message = i18nConf.gitModel
+          ? t('【符合条件文件数为0】')
+          : t('【符合条件文件数为0】请检查路径');
+        Logger.warning(message);
       }
     }
 
@@ -115,17 +137,22 @@ const scan = async (
 
     const end = process.hrtime.bigint();
     Logger.info(
-      t('【结束】-{{getCmdNames}}词条，耗时：{{time}}ms，详情如下', {
+      '---------------------------------------------------------------------------------------------------',
+    );
+    Logger.info(
+      t('【结束】-{{getCmdNames}}词条，耗时：{{time}}ms', {
         getCmdNames: getCmdNames(cmdConf),
         time: (end - start) / 1000000n,
       }),
     );
 
     if (Object.keys(humanStatistics).length > 0) {
+      Logger.info('\n节约工时预估，详情如下：');
       console.table(humanStatistics);
     }
   } catch (e) {
     console.error(e);
+    process.exit(1);
   }
 };
 

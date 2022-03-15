@@ -73,7 +73,7 @@ const fillTransFile = (
     );
   } else {
     Logger.warning(
-      t('【提取】【{{targetLang}}】本次无词条变动！', {
+      t('【提取】【{{targetLang}}】所有词条已被提取，无需再次提取！', {
         targetLang,
       }),
     );

@@ -47,6 +47,7 @@ export interface iCmd {
   translateSource: boolean;
   translateMachine: boolean;
   count: boolean;
+  check: boolean;
 }
 
 export interface iTranType {

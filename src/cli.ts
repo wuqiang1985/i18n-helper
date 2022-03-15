@@ -21,7 +21,7 @@ function scan(
   const i18nConf = parseI18nConf(filePath, language);
 
   if (i18nConf) {
-    if (cmdConf.wrap || cmdConf.extract) {
+    if (cmdConf.wrap || cmdConf.extract || cmdConf.check) {
       // 包裹 & 提取词条必须要要有路径
       if (i18nConf.parsedPath) {
         // i18nConf.parsedPath = path.resolve(i18nConf.parsedPath);
@@ -117,6 +117,15 @@ function init() {
     .action((filePath: string | undefined) => {
       scan(filePath, undefined, {
         wrap: true,
+      });
+    });
+
+  program
+    .command('check [filePath]')
+    .description(t('检查词条是否被包裹'))
+    .action((filePath: string | undefined) => {
+      scan(filePath, undefined, {
+        check: true,
       });
     });
 

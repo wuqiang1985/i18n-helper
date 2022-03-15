@@ -5,6 +5,7 @@ import path from 'path';
 import fse from 'fs-extra';
 import inquirer from 'inquirer';
 import glob from 'glob';
+import minimatch from 'minimatch';
 import shell from 'shelljs';
 import _ from 'lodash';
 import prettier from 'prettier';
@@ -52,30 +53,40 @@ const FilterFilesByExclude = (
   parsedExclude: string[] | undefined,
   changedFiles: string[],
 ): string[] => {
-  let excludeFiles: string[] = [];
+  const fileArr: string[] = [];
+  const dirArr: string[] = [];
+  let excludeTmpFiles: string[] = [];
+  let excludeTmpDirs: string[] = [];
 
-  parsedExclude?.map((excludeItem) => {
-    const stat = fs.statSync(excludeItem);
-
-    if (stat.isDirectory()) {
-      const item = changedFiles.filter((cf) => cf.includes(excludeItem));
-
-      if (item) {
-        excludeFiles = excludeFiles.concat(item);
-      }
-    }
-
-    if (stat.isFile()) {
-      const excludeFile = path.basename(excludeItem);
-      const changeFile = changedFiles.find(
-        (cf) => path.basename(cf) === excludeFile,
-      );
-
-      if (changeFile) {
-        excludeFiles.push(changeFile);
-      }
+  parsedExclude?.map((item) => {
+    if (item.includes('.')) {
+      fileArr.push(item);
+    } else {
+      dirArr.push(item);
     }
   });
+
+  if (fileArr.length > 0) {
+    const filePattern =
+      fileArr.length === 1
+        ? `**/${fileArr.join(',')}`
+        : `**/{${fileArr.join(',')}}`;
+
+    excludeTmpFiles = minimatch.match(changedFiles, filePattern);
+  }
+
+  if (dirArr.length > 0) {
+    const dirPattern =
+      dirArr.length === 1
+        ? `**/${dirArr.join(',')}/**`
+        : `**/{${dirArr.join(',')}}/**`;
+
+    excludeTmpDirs = minimatch.match(changedFiles, dirPattern);
+  }
+
+  const excludeFiles = Array.from(
+    new Set([...excludeTmpFiles, ...excludeTmpDirs]),
+  );
 
   changedFiles = _.difference(changedFiles, excludeFiles);
 
@@ -105,13 +116,12 @@ const getMatchedFilesByPath = (i18nConf: iI18nConf): string[] => {
         ? `${filePath}/**/${item}`
         : `${filePath}/**/${item}/**`;
     });
+
     const option = {
       ignore: ignorePath,
     };
 
     files = glob.sync(pattern, option);
-
-    // files = glob.sync(pattern);
   }
 
   return files;
@@ -124,8 +134,6 @@ const getMatchedFilesByPath = (i18nConf: iI18nConf): string[] => {
  */
 const getMatchedFilesByGit = (i18nConf: iI18nConf): string[] => {
   const { fileExt, parsedExclude, srcPath } = i18nConf;
-
-  // shell.cd(srcPath);
 
   // TODO: 晚点看看
   // 新增一个文件夹，再往里面加文件(e.g. src下新建文件夹test，文件夹中新建文件a.js)，此时无法把a.js扫出，反而会扫出test/，
@@ -141,10 +149,10 @@ const getMatchedFilesByGit = (i18nConf: iI18nConf): string[] => {
   // 最后一个为空，所以弹出
   changedFiles.pop();
 
+  const fileExtPatten = `**/*.{${fileExt}}`;
+
   // 按文件后缀过滤
-  changedFiles = changedFiles.filter((filePath) => {
-    return fileExt.split(',').includes(path.extname(filePath).substr(1));
-  });
+  changedFiles = minimatch.match(changedFiles, fileExtPatten);
 
   // 按exclude过滤
   changedFiles = FilterFilesByExclude(parsedExclude, changedFiles);

@@ -85,7 +85,7 @@ const wrap = async (
 
     if (transResult) {
       const code = transResult.code as string;
-      const needTranslate = transInfo.needT || transInfo.needTrans;
+      const needWrap = transInfo.needT || transInfo.needTrans;
       // wordInfoArray 包含2个部分
       // 1. 未被包裹的中文词条
       // 2. 被 t 包裹后的 中文词条 (不包含这部分的话在包裹后无法提取词条)
@@ -94,11 +94,13 @@ const wrap = async (
         wrapResult.originalScanWordInfoLit = originalScanWordInfoList;
       }
 
-      if (needTranslate) {
-        if (cmdConf.wrap) {
+      if (needWrap) {
+        if (cmdConf.wrap || cmdConf.check) {
           wrapResult.wrapInfo[filename] = transInfo.wrapCount;
           generateFileCount += 1;
-          generateFile(transInfo, code, filename, i18nConf);
+          if (cmdConf.wrap) {
+            generateFile(transInfo, code, filename, i18nConf);
+          }
         }
       }
 
@@ -108,14 +110,34 @@ const wrap = async (
     }
   });
 
-  if (generateFileCount > 0) {
-    Logger.success(t('【包裹】词条包裹已完成！'));
-  } else if (cmdConf.wrap) {
-    Logger.warning(t('【包裹】本次无词条被包裹！'));
+  if (cmdConf.wrap) {
+    if (generateFileCount > 0) {
+      Logger.success(t('【包裹】词条包裹已完成！'));
+    } else {
+      Logger.warning(t('【包裹】所有词条已被包裹，无需再次包裹！'));
+    }
+
+    if (failCount > 0) {
+      Logger.warning(
+        '【包裹】本次有词条包裹不成功，详情参见./i18n.error.log！',
+      );
+    }
   }
 
-  if (failCount > 0) {
-    Logger.warning('【包裹】本次有词条包裹不成功，详情参见./i18n.error.log！');
+  if (cmdConf.check) {
+    if (generateFileCount === 0) {
+      Logger.success(t('【检查未翻译词条】恭喜，所有词条都已经包裹！'));
+    } else {
+      const words = Object.values(wrapResult.wrapInfo);
+      const wordCount = words.reduce((total, num) => {
+        return total + num;
+      });
+      Logger.error(
+        t(
+          `【检查未包裹词条】涉及【${generateFileCount}】文件，共有【${wordCount}】词条未包裹！详情如下表：`,
+        ),
+      );
+    }
   }
 
   return wrapResult;

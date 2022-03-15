@@ -65,13 +65,15 @@ describe('getMatchedFiles', () => {
   });
 
   it('git 模式 - 根据 exclude 中的路径或文件过滤', () => {
-    const parsedExclude = ['src/util', 'src/config', 'src/command/scan.ts'];
+    const parsedExclude = ['util', 'config', 'scan.ts', 'file.ts'];
     const changedFiles = [
+      'file.ts',
       'src/config/i18n.default.config.ts',
       'src/command/count.ts',
       'src/command/scan.ts',
       'src/util/logger.ts',
       'src/util/helper.ts',
+      'util/helper.ts',
       'src/plugin/babelPlugin.ts',
     ];
 

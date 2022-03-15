@@ -25,11 +25,14 @@ const countActionResult = (
   const actionWordCount = actionValues.reduce((total, num) => {
     return total + num;
   });
-  humanStatistics[title] = {
-    Files: actionFileCount,
-    Words: actionWordCount,
-    Saving: `${formatSeconds(actionWordCount * time)}`,
-  };
+
+  if (actionFileCount > 0) {
+    humanStatistics[title] = {
+      Files: actionFileCount,
+      Words: actionWordCount,
+      Saving: `${formatSeconds(actionWordCount * time)}`,
+    };
+  }
 };
 /**
  * 统计包裹结果信息
