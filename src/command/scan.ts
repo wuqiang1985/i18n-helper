@@ -93,6 +93,7 @@ const scan = async (
           delete wrapInfo.WRAP_FILE;
           if (Object.values(wrapInfo).length > 0) {
             console.table(wrapInfo);
+            process.exit(1);
           }
         }
 
